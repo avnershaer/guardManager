@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import User
+
+
 
 class UserRole(models.Model):
     role_id = models.BigAutoField(primary_key=True)
@@ -8,27 +10,10 @@ class UserRole(models.Model):
     def __str__(self) -> str:
         return self.role_name
     
-    
-class Users(models.Model):
-    user_id = models.BigAutoField(primary_key=True)
-    user_name = models.CharField(max_length=100, unique=True)
-    password = models.CharField(max_length=100)
-    email = models.CharField(max_length=200, unique=True)
-    user_role = models.ForeignKey(UserRole, on_delete=models.CASCADE)
-    
- 
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)  # Hash the password
-
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
-        
-
 
 class Families(models.Model):
 
     family_id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     family_name = models.CharField(max_length=100, blank=False, null=False, default='')
     family_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
     name1 = models.CharField(max_length = 25, blank=False, null=False)
@@ -37,7 +22,8 @@ class Families(models.Model):
     name2 = models.CharField(max_length = 25, blank=True, null=True)
     phone2 = models.CharField(max_length = 25, blank=True, null=True)
     armed2 = models.BooleanField(default = False)
-    
+    id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
     
     def __str__(self) -> str:
         return self.family_name
@@ -75,7 +61,7 @@ class GuardingList(models.Model):
     time = models.CharField(max_length=10, blank=False, null=False, default='')
     stance_id = models.ForeignKey(Stance, on_delete=models.CASCADE, related_name='stance_id_guarding_lists')
     stance_name = models.ForeignKey(Stance, on_delete=models.CASCADE, related_name='stance_name_guarding_lists')
-    user_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='user_id_guarding_lists')
+    id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user_id_guarding_lists')
     family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='family_id_guarding_lists')
     family_name = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='family_name_guarding_lists')
     family_pic = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='family_pic_guarding_lists')
