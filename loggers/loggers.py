@@ -66,12 +66,12 @@ def err_logger():
         errorHandler = logging.FileHandler(error_log_file_path)
         
         # define the format for error log messages displayed in the error log file.
-        errorFormater = logging.Formatter(
+        errorFormatter = logging.Formatter(
             '%(levelname)s - %(message)s'
             )
         
         # add the file handler to error logger
-        errorHandler.setFormatter(errorFormater)
+        errorHandler.setFormatter(errorFormatter)
         error_logger.addHandler(errorHandler)
         
         # create a stream handler for logging to the console and set its level
