@@ -77,10 +77,10 @@ class AdminFacade():#(AnonymousFacade)
 
 
     def create_guard_list(self, request):
-        loggr.info(f'got to admin_facade.create_guard_list--request:{request.data}')
+        loggr.info(f'got to admin_facade.create_guard_list--REQUEST:{request.data}')
         try:
             guard_list = create_guarding_list(request)
-            loggr.info(f'guard list:{guard_list}')
+            loggr.info(f'guard list BEEN CREATED - admin_facade.create_guard_list()')
             return guard_list
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.create_guard_list()', 'details':str(e)}, status=500, safe=False)
@@ -88,10 +88,10 @@ class AdminFacade():#(AnonymousFacade)
     def save_guarding_list(self, request):
         loggr.info('got to admin_facade.save_guarding_list()')
         try:
-            loggr.info(f'^^^^request:{request.data}')
+            loggr.info(f'^^^^REQUEST:{request.data}')
 
-            shifts = request.data.get('Details').get('shifts')
-            loggr.info(f'^^^^shifts:{shifts}')
+            shifts = request.data.get('shifts')
+            loggr.info(f'^^^^SHIFTS:{shifts}')
             save_shift_details(request, shifts)
             
             glist_last_id = get_last_id()
@@ -99,16 +99,16 @@ class AdminFacade():#(AnonymousFacade)
             last_guard_id = Families.objects.get(family_id=glist_last_id)
             loggr.info(f'^^^^last_guard_id:{last_guard_id}')
 
-            glist_position_id = request.data.get('Details').get('shifts').get('1').get('position_id').get('position_id')
-            glist_position_name = request.data.get('Details').get('shifts').get('1').get('position_id').get('position_name')
+            glist_position_id = request.data.get('shifts').get('1').get('position_id').get('position_id')
+            glist_position_name = request.data.get('shifts').get('1').get('position_id').get('position_name')
             glist_position_id = Position.objects.get(position_id=glist_position_id)
             loggr.info(f'^^^^glist_position_id:{glist_position_id}')
             loggr.info(f'^^^^glist_position_name:{glist_position_name}')
 
-            glist_date = request.data.get('Details').get('list_date')
+            glist_date = request.data.get('list_date')
             loggr.info(f'^^^^glist_date:{glist_date}')
 
-            glist_day = request.data.get('Details').get('list_day')
+            glist_day = request.data.get('list_day')
             loggr.info(f'^^^^glist_day:{glist_day}')
             glist_shifts = dal.get_shifts_by_date_pos(glist_date, glist_position_id)
             loggr.info(f'^^^^glist_shifts:{glist_shifts}')

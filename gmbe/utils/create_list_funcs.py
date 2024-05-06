@@ -12,9 +12,8 @@ loggr = logger()
 errlogger = err_logger()
 dal = Dal()
 
-def create_guarding_list(request):
-    loggr.info(f'got to utils.create_guarding_list()')
-
+def guarding_list_data(request):
+    loggr.info(f'got to utils.guarding_list_data()')
     try:
         date = request.data.get('date')
         loggr.info(f'DATE:{date}')
@@ -22,8 +21,6 @@ def create_guarding_list(request):
         loggr.info(f'DAY:{day}')
         position_id = request.data.get('glistData').get('position_id')
         loggr.info(f'POSITION ID:{position_id}')
-        #position_id = position_id[0]
-        #loggr.info(f'POSITION ID[0]:{position_id}')
         num_of_gards = request.data.get('glistData').get('num_of_gards')
         loggr.info(f'NUM OF GUARDS:{num_of_gards}')
         hours_per_shift = request.data.get('glistData').get('hours_per_shift')
@@ -38,37 +35,75 @@ def create_guarding_list(request):
         loggr.info(f'MODEL:{model}')
         starting_user_id = request.data.get('glistData').get('starting_user_id')
         loggr.info(f'STARTING USER ID:{starting_user_id}')
-        shifts_dict = create_shifts_dict(
-            hours_per_shift, 
-            starting_user_id, 
-            num_of_gards, 
-            daily_guard_hours, 
-            gaurd_start_time,
-            position_id
-            )
-        model_serializer = SetGuardingListSerializer
         position = Position.objects.get(position_id=position_id)
         serialized_position = PositionSerializer(position).data
         loggr.info(f'POSITION:{position}')
         loggr.info(f'POSITION_id:{position_id}')
         loggr.info(f'SERIALZE_POSITION:{serialized_position}')
-        
-        gurading_list = {
-            'position_id': serialized_position,
-            'list_date':date, 
-            'list_day':day,
-            'shifts':shifts_dict
-            }
-        serialize_data = model_serializer(data=gurading_list)
-        if serialize_data.is_valid():
-            serialized_data = serialize_data.data
-            loggr.info(f'GUARDING LIST:{serialized_data}')
-            return serialized_data
-        else:
-            errors = serialize_data.errors
-            loggr.error(f'ERROR---create_list_funcs.create_guarding_list(): {errors}')
-            return JsonResponse({'status': 'ERROR----create_list_funcs.create_guarding_list()', 'details': errors}, status=400)
+        return {
+            'date': date,
+            'day': day,
+            'position_id': position_id,
+            'num_of_gards': num_of_gards,
+            'hours_per_shift': hours_per_shift,
+            'daily_guard_hours': daily_guard_hours,
+            'gaurd_start_time': gaurd_start_time,
+            'model': model,
+            'starting_user_id': starting_user_id,
+            'serialized_position': serialized_position
+        }
+    except Exception as e:
+       loggr.error(f'ERROR---create_list_funcs.guarding_list_data(): {e}')
+       return JsonResponse({'status:': 'ERROR----create_list_funcs.guarding_list_data()', 'details:': str(e)}, status=500, safe=False)
 
+
+
+def create_guarding_list(request):
+    loggr.info(f'got to utils.create_guarding_list()')
+    english_to_hebrew_days = {
+    'Monday': 'יום שני',
+    'Tuesday': 'יום שלישי',
+    'Wednesday': 'יום רביעי',
+    'Thursday': 'יום חמישי',
+    'Friday': 'יום שישי',
+    'Saturday': 'יום שבת',
+    'Sunday': 'יום ראשון'
+    }
+    glist_data = guarding_list_data(request)
+    glist_date = datetime.strptime(glist_data['date'], '%Y-%m-%d')  # convert date in string to datetime object
+    glist_day = english_to_hebrew_days[glist_date.strftime('%A')]  # Get the Hebrew name of the day from the initial glist_date
+    glist_starting_user_id = glist_data['starting_user_id']
+    days_of_lists = int(request.data.get('numOfLists'))
+    glist = []
+    try:
+        for _ in range(days_of_lists):
+            shifts_dict = create_shifts_dict(
+                glist_data['hours_per_shift'], 
+                glist_starting_user_id, 
+                glist_data['num_of_gards'], 
+                glist_data['daily_guard_hours'], 
+                glist_data['gaurd_start_time'],
+                glist_data['position_id']
+            )
+            gurading_list = {
+                'position_id': glist_data['serialized_position'],
+                'list_date': glist_date.strftime('%Y-%m-%d'),  # convert datetime object back to string
+                'list_day':glist_day,
+                'shifts':shifts_dict
+                }
+            glist_date += timedelta(days=1)  # Increase date by one day
+            glist_day = english_to_hebrew_days[glist_date.strftime('%A')]  # Update glist_day to the new day name in Hebrew
+            serialize_data = SetGuardingListSerializer(data=gurading_list)
+            if serialize_data.is_valid():
+                serialized_data = serialize_data.data
+                loggr.info(f'GUARDING LIST BEEN SERIALIZED')
+                glist.append(serialized_data)
+            else:
+                errors = serialize_data.errors
+                loggr.error(f'ERROR---create_list_funcs.create_guarding_list(): {errors}')
+                return JsonResponse({'status': 'ERROR----create_list_funcs.create_guarding_list()', 'details': errors}, status=400)
+        return glist
+    
     except Exception as e:
         loggr.error(f'ERROR---create_list_funcs.create_guarding_list(): {e}')
         return JsonResponse({'status:': 'ERROR----create_list_funcs.create_guarding_list()', 'details:': str(e)}, status=500, safe=False)
@@ -151,7 +186,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
             }
                                                                         
         hour = hour + timedelta(hours=int(hours_per_shift))  # hour for shift
-        loggr.info(f'shift_dict hours been set {shift_dict} ')
+        
    
    
         # Generate IDs for guards for this shift
@@ -170,7 +205,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
                 # For example:
                 # return JsonResponse({'error': 'No more guards available!'}, status=500)
         shifts[shift + 1] = shift_dict 
-        
+    loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
     loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
     return shifts
         
@@ -183,18 +218,18 @@ def save_shift_details(request, shifts):
             str_shift_num = str(shift_num)
             shift_hour = shifts[i]['shift_hour']
             loggr.info(f'------shift_hour:{shift_hour}')
-            shift_date = request.data.get('Details').get('list_date')
+            shift_date = request.data.get('list_date')
             loggr.info(f'------shift_date:{shift_date}')
-            shift_day = request.data.get('Details').get('list_day')
+            shift_day = request.data.get('list_day')
             loggr.info(f'------shift_day:{shift_day}')
             
-            position_id = request.data.get('Details').get('shifts').get(str_shift_num).get('position_id')
+            position_id = request.data.get('shifts').get(str_shift_num).get('position_id')
             loggr.info(f'------position_id:{position_id}')
             #get the position instance
             position_id = Position.objects.get(position_id=position_id['position_id'])
 
             # gets the family id via guards dict
-            guards = request.data.get('Details').get('shifts').get(str_shift_num).get('guards')
+            guards = request.data.get('shifts').get(str_shift_num).get('guards')
             loggr.info(f'------guards:{guards}')
             
             
