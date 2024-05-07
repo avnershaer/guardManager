@@ -1,5 +1,5 @@
 from django.urls import path
-from .url_views import admin_urls
+from .url_views import admin_urls, anonymous_urls
 
 
 app_name = 'gmbe'
@@ -13,4 +13,5 @@ urlpatterns = [
     path('create_guard_list', admin_urls.create_guard_list, name='create_guard_list'),
     path('save_guard_list', admin_urls.save_guarding_list, name='save_guarding_list'),
     path('get_glist_by_date/<str:date>', admin_urls.get_glist_by_date, name='get_glist_by_date'),
+    path('get_last_id', anonymous_urls.get_last_id, name='get_last_id'),
 ]
