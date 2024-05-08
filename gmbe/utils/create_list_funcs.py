@@ -197,7 +197,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
                 loggr.info(f'<><><>guard id{guard_id}')
                 serialized_guard = FamiliesSerializer(guard_id).data
                 shift_dict['guards'].append(serialized_guard) # appending the guard/s to shift dict on ['guards']
-                
+                loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
 
             else:
                 loggr.error("No more guards available!")
@@ -205,7 +205,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
                 # For example:
                 # return JsonResponse({'error': 'No more guards available!'}, status=500)
         shifts[shift + 1] = shift_dict 
-    loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
+    loggr.info(f'LAST SHIFT DICT HOURS : {shift_dict} ')  
     loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
     return shifts
         
