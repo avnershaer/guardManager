@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..dal.dviews import Dal
-from ..utils.operations_funcs import serialize_data 
+from ..utils.operations_funcs import serialize_data, get_shift_last_id
 from ..dal.models import GuardingList, Families, SetGuardingList, Position, Shift
 from ..api.serializers import GuardinglistSerializer, SetGuardingListSerializer, FamiliesSerializer, PositionSerializer
 from datetime import time, timedelta, datetime
@@ -207,8 +207,10 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
         shifts[shift + 1] = shift_dict 
     loggr.info(f'LAST SHIFT DICT HOURS : {shift_dict} ')  
     loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
+    last_id = get_shift_last_id(shift_dict)
+    loggr.info(f'SHIFT LAST_ID: {last_id}')
     return shifts
-        
+       
 def save_shift_details(request, shifts):
     loggr.info('<>OK move to create_list_funcs.save_shift_details()')
     try:

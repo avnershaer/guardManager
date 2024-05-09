@@ -50,6 +50,33 @@ def get_last_id():
     except Exception as e:
         loggr.error(f'error at utils.operations_funcs.get_last_id():{e}')
         return e
+
+def get_shift_last_id(shift_dict):
+    loggr.info('GOT TO operations_funcs.get_shift_last_id()')
+    loggr.info(f'SHIFT DICT:{shift_dict}')
+    id_list = []
+    try:
+        guards = shift_dict.get('guards', [])
+        for guard in guards:
+            id_list.append(guard['family_id'])
+            loggr.info(f'ID LIST:{id_list}')
+        last_id = id_list[-1]
+        loggr.info(f'LAST ID:{last_id}')
+        if id_list:
+            last_id = id_list[-1]
+            loggr.info(f'LAST ID:{last_id}')
+            return last_id
+        else:
+            loggr.error('ERROR: No guards found in shift_dict')
+            return None
+    except Exception as e:
+        loggr.error(f'ERROR at operations_funcs.get_shift_last_id(): {e}')
+        return JsonResponse({'status:':'ERROR raised at operations_funcs.serialize_data:', 'details:':str(e)}, status=500, safe=False)
+
+
+        
+
     
+
 
     
