@@ -1,11 +1,11 @@
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..dal.dviews import Dal
-from ..utils.operations_funcs import serialize_data, get_shift_last_id
+from ..utils.operations_funcs import english_to_hebrew_days, get_shift_last_id
 from ..dal.models import GuardingList, Families, SetGuardingList, Position, Shift
 from ..api.serializers import GuardinglistSerializer, SetGuardingListSerializer, FamiliesSerializer, PositionSerializer
 from datetime import time, timedelta, datetime
-from ..api.serislizers_views import api_get_list
+from ..api.serislizers_views import api_get_last_id
 import json
 
 loggr = logger()
@@ -13,7 +13,7 @@ errlogger = err_logger()
 dal = Dal()
 
 def guarding_list_data(request):
-    loggr.info(f'got to utils.guarding_list_data()')
+    loggr.info(f'got to create_list_funcs.guarding_list_data()')
     try:
         date = request.data.get('date')
         loggr.info(f'DATE:{date}')
@@ -35,6 +35,8 @@ def guarding_list_data(request):
         loggr.info(f'MODEL:{model}')
         starting_user_id = request.data.get('glistData').get('starting_user_id')
         loggr.info(f'STARTING USER ID:{starting_user_id}')
+        if starting_user_id == 'lastId':
+            starting_user_id = api_get_last_id()
         position = Position.objects.get(position_id=position_id)
         serialized_position = PositionSerializer(position).data
         loggr.info(f'POSITION:{position}')
@@ -59,23 +61,16 @@ def guarding_list_data(request):
 
 
 def create_guarding_list(request):
-    loggr.info(f'got to utils.create_guarding_list()')
-    english_to_hebrew_days = {
-    'Monday': 'יום שני',
-    'Tuesday': 'יום שלישי',
-    'Wednesday': 'יום רביעי',
-    'Thursday': 'יום חמישי',
-    'Friday': 'יום שישי',
-    'Saturday': 'יום שבת',
-    'Sunday': 'יום ראשון'
-    }
-    glist_data = guarding_list_data(request)
-    glist_date = datetime.strptime(glist_data['date'], '%Y-%m-%d')  # convert date in string to datetime object
-    glist_day = english_to_hebrew_days[glist_date.strftime('%A')]  # Get the Hebrew name of the day from the initial glist_date
-    glist_starting_user_id = glist_data['starting_user_id']
-    days_of_lists = int(request.data.get('numOfLists'))
-    glist = []
+    loggr.info(f'got to create_list_funck.create_guarding_list()')
     try:
+        english_to_hebrew_day = english_to_hebrew_days()
+        glist_data = guarding_list_data(request)
+        glist_date = datetime.strptime(glist_data['date'], '%Y-%m-%d')  # convert date in string to datetime object
+        glist_day = english_to_hebrew_day[glist_date.strftime('%A')]  # Hebrew name of the day from the initial glist_date
+        glist_starting_user_id = int(glist_data['starting_user_id'])
+        days_of_lists = int(request.data.get('numOfLists'))
+        glist = []
+    
         for _ in range(days_of_lists):
             shifts_dict = create_shifts_dict(
                 glist_data['hours_per_shift'], 
@@ -85,14 +80,19 @@ def create_guarding_list(request):
                 glist_data['gaurd_start_time'],
                 glist_data['position_id']
             )
+
             gurading_list = {
+                'last_guard_id':shifts_dict['last_id'],
                 'position_id': glist_data['serialized_position'],
                 'list_date': glist_date.strftime('%Y-%m-%d'),  # convert datetime object back to string
                 'list_day':glist_day,
-                'shifts':shifts_dict
-                }
+                'shifts':shifts_dict['shifts'],
+            }
+            
             glist_date += timedelta(days=1)  # Increase date by one day
-            glist_day = english_to_hebrew_days[glist_date.strftime('%A')]  # Update glist_day to the new day name in Hebrew
+            glist_day = english_to_hebrew_day[glist_date.strftime('%A')]  # Update glist_day to the new day name in Hebrew
+            glist_starting_user_id = int(shifts_dict['last_id']) + 1
+            
             serialize_data = SetGuardingListSerializer(data=gurading_list)
             if serialize_data.is_valid():
                 serialized_data = serialize_data.data
@@ -102,6 +102,7 @@ def create_guarding_list(request):
                 errors = serialize_data.errors
                 loggr.error(f'ERROR---create_list_funcs.create_guarding_list(): {errors}')
                 return JsonResponse({'status': 'ERROR----create_list_funcs.create_guarding_list()', 'details': errors}, status=400)
+        
         return glist
     
     except Exception as e:
@@ -208,8 +209,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
     loggr.info(f'LAST SHIFT DICT HOURS : {shift_dict} ')  
     loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
     last_id = get_shift_last_id(shift_dict)
-    loggr.info(f'SHIFT LAST_ID: {last_id}')
-    return shifts
+    return {'shifts':shifts, 'last_id':last_id}
        
 def save_shift_details(request, shifts):
     loggr.info('<>OK move to create_list_funcs.save_shift_details()')

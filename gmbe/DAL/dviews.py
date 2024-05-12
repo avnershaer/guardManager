@@ -109,27 +109,11 @@ class Dal(View):
     # get the last id for creating new guard list
     def get_last_id(self):
         try:
-            loggr.info('///MOVE TO dviews.get_last_id()')
-            # maximum date and hour
-            latest_shift = Shift.objects.aggregate(
-                max_date=Max('shift_date'),
-                max_hour=Max('shift_hour'),
-            )
-            # last shift
-            last_shift = Shift.objects.filter(
-                shift_date=latest_shift['max_date'],
-                shift_hour=latest_shift['max_hour']
-            ).last()
-            loggr.info(f'LAST SHIFT:{str(last_shift)}')
-            # family_id from the last shift
-            if last_shift:
-                last_family_ids = last_shift.family_id.all()
-                if last_family_ids:
-                    last_family_id = last_family_ids.last().family_id
-                    loggr.info(f'LAST FAMILY ID: {last_family_id}')
-                    return last_family_id
-            else:
-                return JsonResponse({'ststus':'error', 'details':'No shifts found.'}, status=400, safe=False)
+            # Query the GuardingList model ordered by guarding_list_id in descending order
+            last_guard_list_instance = GuardingList.objects.order_by('-guarding_list_id').first()
+            # Retrieve the last_guard_id from the last_guard_list_instance
+            last_guard_id = last_guard_list_instance.last_guard_id.family_id
+            return last_guard_id
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_last_id()','Details':str(e)}, status=500, safe=False)
 

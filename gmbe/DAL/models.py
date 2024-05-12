@@ -63,6 +63,7 @@ class SetGuardingList(models.Model):
     list_day = models.CharField(max_length=15 , default='')    
     position_id = models.ForeignKey(Position, on_delete=models.CASCADE, related_name='SetGuardingList_position_id', default='')   
     shifts = models.TextField(default='') 
+    last_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='SetGuardingList_last_guard_id', default='')
 
     
    # #set shifts dict as str

@@ -53,15 +53,12 @@ def get_last_id():
 
 def get_shift_last_id(shift_dict):
     loggr.info('GOT TO operations_funcs.get_shift_last_id()')
-    loggr.info(f'SHIFT DICT:{shift_dict}')
     id_list = []
     try:
         guards = shift_dict.get('guards', [])
         for guard in guards:
             id_list.append(guard['family_id'])
-            loggr.info(f'ID LIST:{id_list}')
-        last_id = id_list[-1]
-        loggr.info(f'LAST ID:{last_id}')
+        loggr.info(f'ID LIST:{id_list}')
         if id_list:
             last_id = id_list[-1]
             loggr.info(f'LAST ID:{last_id}')
@@ -73,6 +70,17 @@ def get_shift_last_id(shift_dict):
         loggr.error(f'ERROR at operations_funcs.get_shift_last_id(): {e}')
         return JsonResponse({'status:':'ERROR raised at operations_funcs.serialize_data:', 'details:':str(e)}, status=500, safe=False)
 
+def english_to_hebrew_days():
+    loggr.info(f'GOT TO operation_funcs.create_guarding_list()')
+    return {
+    'Monday': 'יום שני',
+    'Tuesday': 'יום שלישי',
+    'Wednesday': 'יום רביעי',
+    'Thursday': 'יום חמישי',
+    'Friday': 'יום שישי',
+    'Saturday': 'יום שבת',
+    'Sunday': 'יום ראשון'
+    }
 
         
 

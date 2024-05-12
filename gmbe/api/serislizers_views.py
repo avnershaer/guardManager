@@ -2,7 +2,7 @@ from ..dal.dviews import Dal
 from ..utils.operations_funcs import serialize_data
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
-from ..api.serializers import ShiftSerializer
+from ..api.serializers import GuardinglistSerializer
 
 loggr = logger()
 errlogger = err_logger()
@@ -54,6 +54,7 @@ def api_get_last_id():
         if isinstance(last_id, JsonResponse):
             loggr.error(f'ERROR AT serializers_views.api_get_last_id():{last_id}') 
             return last_id
+        loggr.info(f'*****last_id:{last_id}')
         return last_id
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_last_id():{e}')
