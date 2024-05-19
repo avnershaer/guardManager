@@ -34,10 +34,11 @@ class GuardinglistSerializer(serializers.ModelSerializer):
 
     shifts = ShiftSerializer(many=True)
     glist_position_id = PositionSerializer()
+    last_guard_id = FamiliesSerializer()
 
     class Meta:
         model = models.GuardingList
-        fields = ['last_guard_id', 'glist_position_id', 'glist_date', 'shifts']
+        fields = ['last_guard_id', 'glist_position_id', 'glist_date', 'glist_day', 'shifts']
 
 class SetGuardingListSerializer(serializers.ModelSerializer):
 

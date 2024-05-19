@@ -18,7 +18,7 @@ class Dal(View):
 
     # get list of model objects from database 
     def table_objects_list(self, model):
-        loggr.info('got to dal.dalviws.table_object_list()')
+        loggr.info('///MOVE TO dal.dalviws.table_object_list()')
         try:
             # get the list 
             table_list = model.objects.all()
@@ -33,9 +33,24 @@ class Dal(View):
         except Exception as e:
             errlogger.error(f'ERROR HTTP/1.1 500 at dviews.Dal.table_objects_list:{e}')
             return JsonResponse({'status:':'ERROR dviews.Dal.table_objects_list','details:':str(e)}, status=500, safe=False)
+        
+    def get_lists_by_dates(self, model, date1, date2):
+        loggr.info("///MOVE TO DAL.get_lists_by_dates()")
+        try:
+            guarding_lists = model.objects.filter(glist_date__range=(date1, date2))
+            if guarding_lists:
+                loggr.info(f'OK GOT GUARDING LISTS:{guarding_lists}')
+                return guarding_lists
+            loggr.error('ERROR: GOT NO GUARDING LISTS')
+            return None
+        except Exception as e:
+            raise e
+        
+
+
 
     def set_table_object_list(self, model, num_objects, starting_id):
-        loggr.info('got to dal.dalviws.set_table_object_list()')
+        loggr.info('///MOVE TO dal.dalviws.set_table_object_list()')
         loggr.info(f'*******starting_id: {starting_id}')
 
         try:
@@ -72,7 +87,7 @@ class Dal(View):
             return JsonResponse({'status':'ERROR dviews.Dal.set_table_objects_list','Details':str(e)}, status=500, safe=False)
 
     def creat_new(self, model, **kwargs):
-        loggr.info('move to dviews.creat_new()')
+        loggr.info('///MOVE TO dviews.creat_new()')
         try:
             instance = model.objects.create(**kwargs)
             if instance:
@@ -86,7 +101,7 @@ class Dal(View):
     
 
     def get_shifts_by_date_pos(self, date, position_id):
-        loggr.info('move to dviews.get_shifts_by_date_pos()')
+        loggr.info('///MOVE TO dviews.get_shifts_by_date_pos()')
         try:
             shifts = Shift.objects.filter(shift_date=date, position_id=position_id)
             loggr.info(f'dviews shifts:{shifts}')
@@ -116,6 +131,7 @@ class Dal(View):
             return last_guard_id
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_last_id()','Details':str(e)}, status=500, safe=False)
+        
 
 
 

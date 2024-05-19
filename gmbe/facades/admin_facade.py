@@ -59,7 +59,6 @@ class AdminFacade():#(AnonymousFacade)
     def get_glist_by_date(self, date):
         loggr.info('///MOVE TO admin_facade.get_glist_by_date()')
         try:
-            
             loggr.info(f'***get_glist_by_date-date:{date}')
             glist = api_instance_by_date(
                 model = GuardingList,

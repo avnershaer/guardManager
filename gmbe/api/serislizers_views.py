@@ -3,6 +3,9 @@ from ..utils.operations_funcs import serialize_data
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..api.serializers import GuardinglistSerializer
+from ..dal.models import GuardingList
+import json
+
 
 loggr = logger()
 errlogger = err_logger()
@@ -28,11 +31,31 @@ def api_get_list(instance_model, model_serializer):
     except Exception as e:
         return JsonResponse({'status:':'ERROR serializers.api_get_list','details:':str(e)}, status=500, safe=False)
 
+# get guarding lists in range of dates
+def api_get_lists_by_dates(model, model_serializer, date1, date2):
+    loggr.info('///MOVE TO serializers_views.get_lists_by_dates')
+    try:
+        lists_by_dates = dal.get_lists_by_dates(model, date1, date2)
+        if isinstance(lists_by_dates, JsonResponse):
+            return lists_by_dates
+        elif lists_by_dates == None:
+            return None
+        serialized_lists =serialize_data(
+            model_serializer=model_serializer, 
+            instance_model=model, 
+            objects=lists_by_dates, 
+            many=True
+            ).data
+        return serialized_lists
+    except Exception as e:
+       loggr.error(f'ERROR AT serializers_views.get_lists_by_dates():{e}')
+       raise e        
+
+
 def api_instance_by_date(model, model_serializer, obj_date, date):
     loggr.info('///MOVE TO serializers_views.api_instance_by_date()')
     try:
         instance = dal.get_instance_by_date(model, obj_date, date)
-        
         if isinstance(instance, JsonResponse):
             loggr.error(f'ERROR AT serializers_views.api_instance_by_date():{instance}') 
             return instance
