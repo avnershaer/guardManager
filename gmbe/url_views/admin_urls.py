@@ -24,7 +24,8 @@ def families_list(request):
     # handle any exceptions that occur while fetching the list
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, status=500, safe=False)
-    
+
+@csrf_exempt  
 @api_view(['GET'])
 def users_list(request):
     if request.method != 'GET':
@@ -34,7 +35,8 @@ def users_list(request):
         return JsonResponse({'details:':users_list}, status=200, safe=False)
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, status=500, safe=False)
-    
+
+@csrf_exempt    
 @api_view(['GET'])
 def positions_list(request):
     if request.method != 'GET':
@@ -45,17 +47,7 @@ def positions_list(request):
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, status=500, safe=False)
     
-@api_view(['GET'])
-def guarding_list(request):
-    loggr.info(f'{request} request recived - admin_urls.guarding_list()')
-    if request.method != 'GET':
-        return JsonResponse({'error': 'GET requests only!'}, status=405)  
-    try:
-        guarding_list = admin_facade.get_guarding_list(request)
-        return guarding_list
-    except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.guarding_list()','details':str(e)}, status=500, safe=False)
-
+@csrf_exempt
 @api_view(['GET'])
 def shifts_list(request):
     loggr.info(f'{request} request recived - admin_urls.shifts_list()')
@@ -67,6 +59,7 @@ def shifts_list(request):
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.shifts_list()','details':str(e)}, status=500, safe=False)
 
+@csrf_exempt
 @api_view(['POST'])
 def create_guard_list(request):
     loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
@@ -81,6 +74,7 @@ def create_guard_list(request):
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.create_guard_list()','details':str(e)}, status=500, safe=False)
 
+@csrf_exempt
 @api_view(['POST'])
 def save_guarding_list(request):
     loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
@@ -93,20 +87,6 @@ def save_guarding_list(request):
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)})
 
-@api_view(['GET'])
-def get_glist_by_date(request, date):
-    loggr.info(f'{request} request recived - get_glist_by_date()')
-    try:
-        date = str(date)
-        loggr.info(f'***date:{date}')
-        if request.method != 'GET':
-            return JsonResponse({'error': 'GET requests only!'}, status=405)  
-        glist = admin_facade.get_glist_by_date(date)
-        
-        loggr.info(f'O.K GLIST BY DATE:{str(glist)}')
-        return JsonResponse({'status':'success', 'Details':glist}, status=200, safe=False)
-    except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
 
 
 

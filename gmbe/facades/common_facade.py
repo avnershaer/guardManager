@@ -1,5 +1,5 @@
 from loggers.loggers import logger, err_logger
-from ..api.serislizers_views import api_get_lists_by_dates
+from ..api.serislizers_views import api_get_lists_by_dates, api_instance_by_date, api_get_instance_by_date_position, api_get_list, api_get_glist_by_id
 from django.http import JsonResponse
 from ..dal.models import GuardingList
 from ..api.serializers import GuardinglistSerializer
@@ -12,7 +12,7 @@ errlogger = err_logger()
 class CommonFacade():
 
     def get_lists_by_dates(self, date1, date2):
-        loggr.info('///MOVE TO CommonFacade.get_lists_by_dates()') 
+        loggr.info('///MOVE TO common_facade.get_lists_by_dates()') 
         try:
             lists_by_dates = api_get_lists_by_dates(
                 model = GuardingList,
@@ -21,10 +21,70 @@ class CommonFacade():
                 date2 = date2
                 )
             if lists_by_dates == None:
-                  loggr.info(f'lists_by_dates:NONE')
+                  loggr.info(f'lists_by_dates == NONE')
                   return None
             loggr.info(f'lists_by_dates:{lists_by_dates}')
             return lists_by_dates 
         except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_families','details':str(e)}, status=500, safe=False)
-            
+            return JsonResponse({'status':'ERROR at common_facade.get_lists_by_dates()','details':str(e)}, status=500, safe=False)
+
+    def get_glist_by_date(self, date):
+      loggr.info('///MOVE TO common_facade.get_glist_by_date()')
+      try:
+          loggr.info(f'***get_glist_by_date-date:{date}')
+          glist = api_instance_by_date(
+              model = GuardingList,
+              model_serializer = GuardinglistSerializer,
+              obj_date = 'glist_date',
+              date = date,
+              )
+          if glist == None:
+                  loggr.info(f'GLIST == NONE')
+                  return None
+          loggr.info(f'GLIST BY DATE:{glist}')
+          return glist
+      except Exception as e:
+          loggr.error(f'ERROR AT common_facade.get_glist_by_date():{e}') 
+          return JsonResponse({'status':'ERROR AT common_facade.get_glist_by_date()','details':str(e)}, status=500, safe=False)
+    
+    def get_glist_by_id(self, glist_id):
+      loggr.info('///MOVE TO common_facade.get_glist_by_id()')
+      try:
+          glist = api_get_glist_by_id(glist_id)
+          if glist == None:
+                  loggr.info(f'GLIST == NONE')
+                  return None
+          loggr.info(f'GLIST BY ID:{glist}')
+          return glist
+      except Exception as e:
+          loggr.error(f'ERROR AT common_facade.get_glist_by_id():{e}') 
+          return JsonResponse({'status':'ERROR AT common_facade.get_glist_by_id()','details':str(e)}, status=500, safe=False)
+      
+    def get_instance_by_date_position(self, date, position):
+        loggr.info('///MOVE TO common_facade.get_instance_by_date_position()')
+        try:
+            instance = api_get_instance_by_date_position(
+              position = position,
+              date = date,
+              )
+            if instance == None:
+                  loggr.info(f'INSTANCE == NONE')
+                  return None
+            loggr.info(f'INSTANCE BY DATE AND POSITION:{instance}')
+            return instance
+        except Exception as e:
+          loggr.error(f'ERROR AT common_facade.get_instance_by_date_position():{e}') 
+          return JsonResponse({'status':'ERROR AT common_facade.get_instance_by_date_position()','details':str(e)}, status=500, safe=False)
+    
+    def get_guarding_list(self, request):
+        try:
+            guarding_list = api_get_list(instance_model=GuardingList, model_serializer=GuardinglistSerializer)
+            if guarding_list == None:
+                  loggr.info(f'GUARDING LIST == NONE')
+                  return None
+            loggr.info(f'GUARDING LIST:{guarding_list}')
+            return guarding_list
+        except Exception as e:
+            loggr.error(f'ERROR AT common_facade.get_guarding_list():{e}') 
+            return JsonResponse({'status':'ERROR at common_facade.get_guarding_list()','details':str(e)}, status=500, safe=False)
+    

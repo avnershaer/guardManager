@@ -42,12 +42,6 @@ class AdminFacade():#(AnonymousFacade)
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
         
-    def get_guarding_list(self, request):
-        try:
-            guarding_list = api_get_list(instance_model=GuardingList, model_serializer=GuardinglistSerializer)
-            return guarding_list
-        except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_guarding_list()','details':str(e)}, status=500, safe=False)
     
     def get_shifts_list(self, request):
         try:
@@ -56,21 +50,7 @@ class AdminFacade():#(AnonymousFacade)
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_shifts_list()','details':str(e)}, status=500, safe=False)
 
-    def get_glist_by_date(self, date):
-        loggr.info('///MOVE TO admin_facade.get_glist_by_date()')
-        try:
-            loggr.info(f'***get_glist_by_date-date:{date}')
-            glist = api_instance_by_date(
-                model = GuardingList,
-                model_serializer = GuardinglistSerializer,
-                obj_date = 'glist_date',
-                date = date,
-                )
-            loggr.info(f'GLIST BY DATE:{glist}')
-            return glist
-        except Exception as e:
-            loggr.error(f'ERROR AT admin_facade.get_glist_by_date():{e}') 
-            return JsonResponse({'status':'ERROR AT admin_facade.get_glist_by_date()','details':str(e)}, status=500, safe=False)
+  
 
 
 

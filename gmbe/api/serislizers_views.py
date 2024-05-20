@@ -16,21 +16,42 @@ dal = Dal()
 def api_get_list(instance_model, model_serializer):
     loggr.info('///MOVE TO serializers_views.api_get_list()')
     try:
-        # get a list of objects using the data access layer (dal)
-        objects_list = dal.table_objects_list(model=instance_model)
-        # if got an error message from dviews
-        if isinstance(objects_list, JsonResponse): 
+        objects_list = dal.table_objects_list(instance_model)
+        if isinstance(objects_list, JsonResponse):
             return objects_list
-        # no errors - serialize the data 
-        obj_list = serialize_data(model_serializer=model_serializer, instance_model=instance_model, objects=objects_list, many=True).data
-        # return jsonresponse with object list
-        loggr.info(f'obj_list:{obj_list}')
-        return obj_list
-        
-    # handle any exceptions that occur during processing this method      
+        elif objects_list == None:
+            return None
+        serialized_lists =serialize_data(
+            model_serializer=model_serializer, 
+            instance_model=instance_model, 
+            objects=objects_list, 
+            many=True
+            ).data
+        return serialized_lists
     except Exception as e:
-        return JsonResponse({'status:':'ERROR serializers.api_get_list','details:':str(e)}, status=500, safe=False)
+       loggr.error(f'ERROR AT serializers_views.api_get_list():{e}')
+       raise e 
 
+def api_get_glist_by_id(glist_id):
+    loggr.info('///MOVE TO serializers_views.api_get_glist_by_id()')
+    try:
+        objects_list = dal.get_glist_by_id(glist_id)
+        if isinstance(objects_list, JsonResponse):
+            return objects_list
+        elif objects_list == None:
+            return None
+        serialized_lists =serialize_data(
+            model_serializer=GuardinglistSerializer, 
+            instance_model=GuardingList, 
+            objects=objects_list, 
+            many=True
+            ).data
+        return serialized_lists
+    except Exception as e:
+       loggr.error(f'ERROR AT serializers_views.api_get_glist_by_id():{e}')
+       raise e 
+        
+ 
 # get guarding lists in range of dates
 def api_get_lists_by_dates(model, model_serializer, date1, date2):
     loggr.info('///MOVE TO serializers_views.get_lists_by_dates')
@@ -59,6 +80,8 @@ def api_instance_by_date(model, model_serializer, obj_date, date):
         if isinstance(instance, JsonResponse):
             loggr.error(f'ERROR AT serializers_views.api_instance_by_date():{instance}') 
             return instance
+        elif instance == None:
+            return None
         serialized_instance = serialize_data(
             model_serializer=model_serializer, 
             instance_model=model, 
@@ -69,7 +92,27 @@ def api_instance_by_date(model, model_serializer, obj_date, date):
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_instance_by_date():{e}')
         return JsonResponse({'status:':'ERROR AT serializers_views.api_instance_by_date()','details:':str(e)}, status=500, safe=False)
-        
+
+def api_get_instance_by_date_position(date, position):
+    loggr.info('///MOVE TO serializers_views.api_get_instance_by_date_position()')
+    try:
+        instance = dal.get_instance_by_date_position(date, position)
+        if isinstance(instance, JsonResponse):
+            loggr.error(f'ERROR AT serializers_views.api_get_instance_by_date_position():{instance}') 
+            return instance
+        elif instance == None:
+            return None
+        serialized_instance = serialize_data(
+            model_serializer=GuardinglistSerializer, 
+            instance_model=GuardingList, 
+            objects=instance, 
+            many=True
+            ).data
+        return serialized_instance
+    except Exception as e:
+        loggr.error(f'ERROR AT serializers_views.api_get_instance_by_date_position():{e}')
+        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_instance_by_date_position()','details:':str(e)}, status=500, safe=False)
+
 def api_get_last_id():
     loggr.info('///MOVE TO serializers_views.api_get_last_id()')
     try:

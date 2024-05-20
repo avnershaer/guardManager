@@ -9,11 +9,13 @@ urlpatterns = [
     path('users_list', admin_urls.users_list, name='users_list'),
     path('positions_list', admin_urls.positions_list, name='positions_list'),
     path('shifts_list', admin_urls.shifts_list, name='shifts_list'),
-    path('guarding_list', admin_urls.guarding_list, name='guarding_list'),
+    path('guarding_list', common_urls.guarding_list, name='guarding_list'),
     path('create_guard_list', admin_urls.create_guard_list, name='create_guard_list'),
     path('save_guard_list', admin_urls.save_guarding_list, name='save_guarding_list'),
-    path('get_glist_by_date/<str:date>', admin_urls.get_glist_by_date, name='get_glist_by_date'),
+    path('get_glist_by_date/<str:date>', common_urls.get_glist_by_date, name='get_glist_by_date'),
     path('get_last_id', anonymous_urls.get_last_id, name='get_last_id'),
     path('get_lists_by_dates/<str:date1>/<str:date2>', common_urls.get_lists_by_dates, name='get_lists_by_dates'),
+    path('get_list_by_date_position/<str:date>/<int:position_id>', common_urls.get_list_by_date_position, name='get_list_by_date_position'),
+    path('get_glist_by_id/<int:glist_id>', common_urls.get_glist_by_id, name='get_glist_by_id'),
 
 ]

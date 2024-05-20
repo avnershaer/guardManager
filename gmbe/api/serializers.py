@@ -38,7 +38,7 @@ class GuardinglistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.GuardingList
-        fields = ['last_guard_id', 'glist_position_id', 'glist_date', 'glist_day', 'shifts']
+        fields = ['guarding_list_id', 'last_guard_id', 'glist_position_id', 'glist_date', 'glist_day', 'shifts']
 
 class SetGuardingListSerializer(serializers.ModelSerializer):
 

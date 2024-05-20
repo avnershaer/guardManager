@@ -20,19 +20,13 @@ class Dal(View):
     def table_objects_list(self, model):
         loggr.info('///MOVE TO dal.dalviws.table_object_list()')
         try:
-            # get the list 
             table_list = model.objects.all()
             if table_list:
-                loggr.info('OK got object/s from db HTTP/1.1 200 - dalviews.Dal.table_objects_list')
                 return table_list
-            # if error  
-            errlogger.error('DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400  at  dviews.Dal.table_objects_list')
-            return JsonResponse({'status': 'DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400'}, status=400, safe=False) 
-        
-        # handle any exceptions that occur during processing this method
+            return None  
         except Exception as e:
-            errlogger.error(f'ERROR HTTP/1.1 500 at dviews.Dal.table_objects_list:{e}')
-            return JsonResponse({'status:':'ERROR dviews.Dal.table_objects_list','details:':str(e)}, status=500, safe=False)
+            return JsonResponse({'status':'error', 'details':str(e)}, status=500, safe=False)
+
         
     def get_lists_by_dates(self, model, date1, date2):
         loggr.info("///MOVE TO DAL.get_lists_by_dates()")
@@ -46,13 +40,41 @@ class Dal(View):
         except Exception as e:
             raise e
         
+    def get_instance_by_date(self, model, obj_date, date):
+        loggr.info('///MOVE TO  dviews. get_instance_by_date()')
+        try:
+            loggr.info(f'***obj_date:{obj_date}, ***date:{date}')
+            instance = model.objects.filter(**{obj_date:date})
+            if instance:
+                loggr.info(f'instance: {instance}')
+                return instance
+            return None
+        except Exception as e:
+            return JsonResponse({'status':'error', 'details':str(e)})
+    
+    def get_glist_by_id(self, glist_id):
+        loggr.info('///MOVE TO  dviews. get_instance_by_date()')
+        try:
+            instance = GuardingList.objects.filter(guarding_list_id=glist_id)
+            if instance:
+                loggr.info(f'instance: {instance}')
+                return instance
+            return None
+        except Exception as e:
+            return JsonResponse({'status':'error', 'details':str(e)})
 
-
+    def get_instance_by_date_position(self, date, position):
+        loggr.info('///MOVE TO dal.dalviws.get_instance_by_date_position()')
+        try:
+            instance = GuardingList.objects.filter(glist_date=date, glist_position_id=position)
+            if instance:
+                return instance
+            return None
+        except Exception as e:
+            return JsonResponse({'status':'error', 'details':str(e)})
 
     def set_table_object_list(self, model, num_objects, starting_id):
-        loggr.info('///MOVE TO dal.dalviws.set_table_object_list()')
         loggr.info(f'*******starting_id: {starting_id}')
-
         try:
             id_list = []
             queryset = model.objects.all()
@@ -111,15 +133,6 @@ class Dal(View):
             return JsonResponse({'status': 'error', 'details':'dviews.get_shifts_by_date_pos()-faild to get shifts'}) 
 
 
-    def get_instance_by_date(self, model, obj_date, date):
-        loggr.info('///MOVE TO  dviews. get_instance_by_date()')
-        try:
-            loggr.info(f'***obj_date:{obj_date}, ***date:{date}')
-            instance = model.objects.filter(**{obj_date:date})
-            loggr.info(f'instance: {instance}')
-            return instance
-        except Exception as e:
-            return JsonResponse({'status':'error', 'details':str(e)})
 
     # get the last id for creating new guard list
     def get_last_id(self):
