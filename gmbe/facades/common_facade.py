@@ -1,5 +1,5 @@
 from loggers.loggers import logger, err_logger
-from ..api.serislizers_views import api_get_lists_by_dates, api_instance_by_date, api_get_instance_by_date_position, api_get_list, api_get_glist_by_id
+from ..api.serislizers_views import api_get_lists_by_dates, api_instance_by_date, api_get_instance_by_date_position, api_get_list, api_get_glist_by_id, api_get_futu_lists
 from django.http import JsonResponse
 from ..dal.models import GuardingList
 from ..api.serializers import GuardinglistSerializer
@@ -77,6 +77,7 @@ class CommonFacade():
           return JsonResponse({'status':'ERROR AT common_facade.get_instance_by_date_position()','details':str(e)}, status=500, safe=False)
     
     def get_guarding_list(self, request):
+        loggr.info('///MOVE TO common_facade.get_guarding_list()')
         try:
             guarding_list = api_get_list(instance_model=GuardingList, model_serializer=GuardinglistSerializer)
             if guarding_list == None:
@@ -88,3 +89,16 @@ class CommonFacade():
             loggr.error(f'ERROR AT common_facade.get_guarding_list():{e}') 
             return JsonResponse({'status':'ERROR at common_facade.get_guarding_list()','details':str(e)}, status=500, safe=False)
     
+    def get_future_glists(self, request):
+        loggr.info('///MOVE TO common_facade.get_future_glists()')
+        try:
+            future_glists = api_get_futu_lists()
+            if future_glists == None:
+                  loggr.info(f'FUTURE GUARDING LIST == NONE')
+                  return None
+            loggr.info(f'FUTURE GUARDING LIST:{future_glists}')
+            return future_glists
+        except Exception as e:
+            loggr.error(f'ERROR AT common_facade.get_future_glists():{e}') 
+            return JsonResponse({'status':'ERROR at common_facade.get_future_glists()','details':str(e)}, status=500, safe=False)
+

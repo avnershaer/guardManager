@@ -89,3 +89,18 @@ def guarding_list(request):
         return JsonResponse({'status':'success', 'Details':guarding_list}, status=200, safe=False)
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)        
+
+@csrf_exempt
+@api_view(['GET'])
+def future_gurading_lists(request):
+    loggr.info(f'{request} request recived - admin_urls.future_gurading_lists()')
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405)  
+    try:
+        future_glists = common_fadcade.get_future_glists(request)
+        if future_glists == None:
+            return JsonResponse({'status':'none', 'details':'לא נמצאו רשימות שמירה עתידיות'}, status=404, safe=False)
+        loggr.info(f'FUTURE GUARDING LISTS:{str(future_glists)}')
+        return JsonResponse({'status':'success', 'Details':future_glists}, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)        

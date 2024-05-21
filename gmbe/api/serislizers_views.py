@@ -78,7 +78,7 @@ def api_instance_by_date(model, model_serializer, obj_date, date):
     try:
         instance = dal.get_instance_by_date(model, obj_date, date)
         if isinstance(instance, JsonResponse):
-            loggr.error(f'ERROR AT serializers_views.api_instance_by_date():{instance}') 
+            loggr.error(f'ERROR AT serializers_views.api_instance_by_date()') 
             return instance
         elif instance == None:
             return None
@@ -98,7 +98,7 @@ def api_get_instance_by_date_position(date, position):
     try:
         instance = dal.get_instance_by_date_position(date, position)
         if isinstance(instance, JsonResponse):
-            loggr.error(f'ERROR AT serializers_views.api_get_instance_by_date_position():{instance}') 
+            loggr.error(f'ERROR AT serializers_views.api_get_instance_by_date_position()') 
             return instance
         elif instance == None:
             return None
@@ -118,10 +118,30 @@ def api_get_last_id():
     try:
         last_id = dal.get_last_id()
         if isinstance(last_id, JsonResponse):
-            loggr.error(f'ERROR AT serializers_views.api_get_last_id():{last_id}') 
+            loggr.error(f'ERROR AT serializers_views.api_get_last_id()') 
             return last_id
         loggr.info(f'*****last_id:{last_id}')
         return last_id
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_last_id():{e}')
         return JsonResponse({'status:':'ERROR AT serializers_views.api_get_last_id()','details:':str(e)}, status=500, safe=False)
+    
+def api_get_futu_lists():
+    loggr.info('///MOVE TO serializers_views.api_get_futu_lists()')
+    try:
+        futu_lists = dal.get_future_lists()
+        if isinstance(futu_lists, JsonResponse):
+            loggr.error(f'ERROR AT serializers_views.api_get_futu_lists()') 
+            return futu_lists
+        elif futu_lists == None:
+            return None
+        serialized_instance = serialize_data(
+            model_serializer=GuardinglistSerializer, 
+            instance_model=GuardingList, 
+            objects=futu_lists, 
+            many=True
+            ).data
+        return serialized_instance
+    except Exception as e:
+        loggr.error(f'ERROR AT serializers_views.api_get_futu_lists():{e}')
+        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_futu_lists()','details:':str(e)}, status=500, safe=False)

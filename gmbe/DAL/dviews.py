@@ -132,10 +132,9 @@ class Dal(View):
             loggr.error(f'ERROR at dviews.get_shifts_by_date_pos(): FAILD TO GET SHIFTS:{e}')
             return JsonResponse({'status': 'error', 'details':'dviews.get_shifts_by_date_pos()-faild to get shifts'}) 
 
-
-
     # get the last id for creating new guard list
     def get_last_id(self):
+        loggr.info('///MOVE TO dviews.get_last_id()')
         try:
             # Query the GuardingList model ordered by guarding_list_id in descending order
             last_guard_list_instance = GuardingList.objects.order_by('-guarding_list_id').first()
@@ -145,7 +144,16 @@ class Dal(View):
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_last_id()','Details':str(e)}, status=500, safe=False)
         
-
+    def get_future_lists(self):
+        loggr.info('///MOVE TO dviews.get_future_lists()')
+        try:
+            today = timezone.now().date()
+            futu_lists = GuardingList.objects.filter(glist_date__gte=today).order_by('glist_date')
+            if futu_lists:
+                return futu_lists
+            return None
+        except Exception as e:
+            return JsonResponse({'status':'ERROR dviews.Dal.get_future_lists()','Details':str(e)}, status=500, safe=False)
 
 
 
