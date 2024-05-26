@@ -18,5 +18,6 @@ urlpatterns = [
     path('get_list_by_date_position/<str:date>/<int:position_id>', common_urls.get_list_by_date_position, name='get_list_by_date_position'),
     path('get_glist_by_id/<int:glist_id>', common_urls.get_glist_by_id, name='get_glist_by_id'),
     path('future_gurading_lists', common_urls.future_gurading_lists, name='future_gurading_lists'),
+    path('exchange_guard', admin_urls.exchange_guard, name='exchange_guard'),
 
 ]

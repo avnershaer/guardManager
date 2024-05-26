@@ -16,19 +16,19 @@ errlogger = err_logger()
 class AdminFacade():#(AnonymousFacade)
     
     def get_all_families(self, request): #(request for @require_role)
-            loggr.info('got to admin_facade.AdminFacade.get_all_families()')
-            try:
-                # get list of all families
-                families_list = api_get_list(instance_model=Families, model_serializer = FamiliesSerializer)
-                loggr.info(f'families_list:{families_list}')
-                # success reponse with list of families.  
-                return families_list 
-
-            # handle any exceptions that occur during getting the list 
-            except Exception as e:
-                return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_families','details':str(e)}, status=500, safe=False)
+        loggr.info('///MOVE TO admin_facade.get_all_families()')
+        try:
+            # get list of all families
+            families_list = api_get_list(instance_model=Families, model_serializer = FamiliesSerializer)
+            loggr.info(f'families_list:{families_list}')
+            # success reponse with list of families.  
+            return families_list
+        # handle any exceptions that occur during getting the list 
+        except Exception as e:
+            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_families','details':str(e)}, status=500, safe=False)
             
     def get_all_users(self, request):
+        loggr.info('///MOVE TO admin_facade.get_all_users()')
         try:
             users_list = api_get_list(instance_model=User, model_serializer=UserSerializer)
             return users_list
@@ -36,27 +36,23 @@ class AdminFacade():#(AnonymousFacade)
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_users()','details':str(e)}, status=500, safe=False)
         
     def get_Positions_list(self, request):
+        loggr.info('///MOVE TO admin_facade.get_Positions_list()')
         try:
             positions_list = api_get_list(instance_model=Position, model_serializer=PositionSerializer)
             return positions_list
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
         
-    
     def get_shifts_list(self, request):
+        loggr.info('///MOVE TO admin_facade.get_shifts_list()')
         try:
             shifts_list = api_get_list(instance_model=Shift, model_serializer=ShiftSerializer)
             return shifts_list
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_shifts_list()','details':str(e)}, status=500, safe=False)
 
-  
-
-
-
-
     def create_guard_list(self, request):
-        loggr.info(f'got to admin_facade.create_guard_list--REQUEST:{request.data}')
+        loggr.info('///MOVE TO admin_facade.create_guard_list()')
         try:
             guard_list = create_guarding_list(request)
             loggr.info(f'guard list BEEN CREATED - admin_facade.create_guard_list()')
@@ -65,7 +61,7 @@ class AdminFacade():#(AnonymousFacade)
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.create_guard_list()', 'details':str(e)}, status=500, safe=False)
 
     def save_guarding_list(self, request):
-        loggr.info('got to admin_facade.save_guarding_list()')
+        loggr.info('///MOVE TO admin_facade.save_guarding_list()')
         try:
             loggr.info(f'^^^^REQUEST:{request.data}')
 
@@ -109,4 +105,7 @@ class AdminFacade():#(AnonymousFacade)
         except Exception as e:
             loggr.error((f'ERROR at admin_facade.save_guarding_list:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
+        
+    def reg_exchange_guard(self, request):
+        loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
         

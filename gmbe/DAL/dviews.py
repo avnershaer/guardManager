@@ -154,8 +154,21 @@ class Dal(View):
             return None
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_future_lists()','Details':str(e)}, status=500, safe=False)
-
-
+    
+    def exchange_guard(self, shift_id, substitute_guard_id):
+        loggr.info('///MOVE TO dviews.exchange_guard()')
+        try:
+            shift_instance = Shift.objects.get(shift_id=shift_id)
+            substitute_guard = Families.objects.get(pk=substitute_guard_id)
+            shift_instance.family_id.clear()
+            shift_instance.family_id.add(substitute_guard)
+            shift_instance.save()
+            if shift_instance:
+                return shift_instance
+            return None
+        except Exception as e:
+            loggr.error(f"ERROR dviews.exchange_guard(): {str(e)}")
+            return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
 
 
 

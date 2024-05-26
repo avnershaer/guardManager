@@ -87,6 +87,17 @@ def save_guarding_list(request):
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)})
 
+@csrf_exempt
+@api_view(['PUT'])
+def exchange_guard(request):
+    loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
+    if request.method != 'PUT':
+        return JsonResponse({'error': 'PUT requests only!'}, status=405)  
+    try:
+        loggr.info(f'exchange_guard REQUEST:{request.data}')
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+
 
 
 
