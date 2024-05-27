@@ -2,15 +2,12 @@ import logging
 import logging.config
 import os
 
-
 def logger():
-    
     # create a logger instance 
-    logger = logging.getLogger(__name__)
-    
-    # if no handlers are present (avoid adding duplicate handlers)
-    if not logger.handlers: 
+    logger = logging.getLogger('my_app_logger')  # Use a unique name
 
+    # if no handlers are present (avoid adding duplicate handlers)
+    if not logger.handlers:
         logger.setLevel(logging.INFO)
 
         # define the path for the log file
@@ -49,13 +46,11 @@ def logger():
     return logger
 
 def err_logger():
-
     # create a logger instance
-    error_logger = logging.getLogger()
+    error_logger = logging.getLogger('my_app_error_logger')  # Use a unique name
 
     # if no handlers are present (avoid adding duplicate handlers)
     if not error_logger.handlers:
-
         # set logger level to error 
         error_logger.setLevel(logging.ERROR)
 
@@ -91,4 +86,3 @@ def err_logger():
         error_logger.addHandler(streamHandler)
     
     return error_logger
-

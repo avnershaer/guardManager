@@ -7,6 +7,8 @@ from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
 from ..utils.operations_funcs import get_last_id
+from ..utils.requests_data import exchange_request_data
+
 
 dal = Dal()
 loggr = logger()
@@ -108,4 +110,9 @@ class AdminFacade():#(AnonymousFacade)
         
     def reg_exchange_guard(self, request):
         loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
-        
+        request_data = exchange_request_data(request)
+        loggr.info(f'REQUEST DATA: {request_data}')
+        reg_exchange = dal.exchange_guard(request_data['shift_id'], request_data['guard_id'], request_data['substitute_guard_id'])
+        if reg_exchange:
+            loggr.info(f'REG_EXCHANGE:{reg_exchange}')
+

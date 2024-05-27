@@ -155,16 +155,26 @@ class Dal(View):
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_future_lists()','Details':str(e)}, status=500, safe=False)
     
-    def exchange_guard(self, shift_id, substitute_guard_id):
+    def exchange_guard(self, shift_id, guard_id, substitute_guard_id):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
-            shift_instance = Shift.objects.get(shift_id=shift_id)
-            substitute_guard = Families.objects.get(pk=substitute_guard_id)
-            shift_instance.family_id.clear()
-            shift_instance.family_id.add(substitute_guard)
-            shift_instance.save()
-            if shift_instance:
-                return shift_instance
+            loggr.info(f"SHIFT_ID: {shift_id}")
+
+            shift_instance = Shift.objects.get(shift_id=int(shift_id))
+            loggr.info(f"Shift instance retrieved: {shift_instance}")
+            substitute_guard = Families.objects.get(family_id=substitute_guard_id)
+            loggr.info(f"Substitute guard retrieved: {substitute_guard}")
+            current_guard = shift_instance.family_id.filter(family_id=guard_id).first()
+            if current_guard:
+                shift_instance.family_id.remove(current_guard)
+                loggr.info(f"Removed current guard: {current_guard}")
+                shift_instance.family_id.add(substitute_guard)
+                shift_instance.save()
+                loggr.info(f'OK SAVED NEW REPLACED GUARD -- SHIFT INSTANCE: {shift_instance}')
+                if shift_instance:
+                    loggr.info(f'OK SAVED NEW REPLACED GUARD -- SHIFT INSTANCE: {shift_instance}')
+                    return shift_instance
+                return None
             return None
         except Exception as e:
             loggr.error(f"ERROR dviews.exchange_guard(): {str(e)}")

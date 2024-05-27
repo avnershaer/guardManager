@@ -65,19 +65,21 @@ class SetGuardingList(models.Model):
     shifts = models.TextField(default='') 
     last_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='SetGuardingList_last_guard_id', default='')
 
-    
-   # #set shifts dict as str
-   # def set_data(self, data_dict):
-   #     self.shifts = json.dumps(data_dict)
-   # # set guards back from str to dict
-   # def get_data(self):
-   #     return json.loads(self.shifts)
-    
-    
-#    # set guards dict as str
-#    #def set_data(self, data_dict):
-#    #    self.guards = json.dumps(data_dict)
-#    ## set guards back from str to dict
-#    #def get_data(self):
-#    #    return json.loads(self.guards)
-#
+
+class Exchanges(models.Model):
+
+    exchange_id = models.BigAutoField(primary_key=True)
+    exchange_date = models.CharField(max_length=15 , default='')
+    exchange_day = models.CharField(max_length=15 , default='')
+    exchange_hour = models.CharField(max_length=8 , default='')
+    origin_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_origin_guard_id', default='')
+    substitute_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_substitute_guard_id', default='')
+    exchange_type = models.CharField(max_length=8 , default='')
+
+
+class PaidGuards(models.Model):
+
+    paid_guard_id = models.BigAutoField(primary_key=True)
+    pguard_name = models.CharField(max_length=100, blank=False, null=False, default='')
+    puard_phone = models.CharField(max_length = 25, blank=True, null=True)
+    puard_family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='PaidGuards_family_id', default='')
