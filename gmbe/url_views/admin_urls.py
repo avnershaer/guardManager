@@ -94,10 +94,11 @@ def exchange_guard(request):
     if request.method != 'PUT':
         return JsonResponse({'error': 'PUT requests only!'}, status=405)  
     try:
-        loggr.info(f'exchange_guard REQUEST:{request.data}')
         exchange_result = admin_facade.reg_exchange_guard(request)
+        loggr.info(f'OK exchange_guard')
+        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
 
 
 

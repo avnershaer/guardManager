@@ -77,6 +77,7 @@ class ExchangesSerializer(serializers.ModelSerializer):
 
     origin_guard_id = FamiliesSerializer(read_only=True)
     substitute_guard_id = FamiliesSerializer(read_only=True)
+    position_id = PositionSerializer(read_only=True)
 
     class Meta:
         model = models.Exchanges
@@ -85,6 +86,7 @@ class ExchangesSerializer(serializers.ModelSerializer):
             'exchange_date', 
             'exchange_day', 
             'exchange_hour', 
+            'position_id',
             'origin_guard_id', 
             'substitute_guard_id', 
             'exchange_type'

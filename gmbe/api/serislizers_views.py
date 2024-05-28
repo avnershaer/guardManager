@@ -12,7 +12,26 @@ errlogger = err_logger()
 dal = Dal()
 
 
-# retrieve a list of objects from the database
+def api_create_new(model, model_serializer, data):
+    loggr.info('///MOVE TO serializers_views.api_create_new()')
+    try:
+        new_instance = dal.create_new(model, **data)
+        if isinstance(new_instance, JsonResponse):
+            return new_instance       
+        serialized_details = serialize_data(
+            model, 
+            model_serializer, 
+            new_instance,
+            False
+            )
+        if isinstance(serialized_details, JsonResponse):
+            return serialized_details
+        return serialized_details.data
+    except Exception as e:
+        return JsonResponse({'status:':'ERROR AT serializers_views.api_create_new()','details:':str(e)}, status=500, safe=False)
+
+
+
 def api_get_list(instance_model, model_serializer):
     loggr.info('///MOVE TO serializers_views.api_get_list()')
     try:

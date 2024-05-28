@@ -108,10 +108,10 @@ class Dal(View):
             errlogger.error(f'ERROR HTTP/1.1 500 at dviews.Dal.set_table_objects_list:{e}')
             return JsonResponse({'status':'ERROR dviews.Dal.set_table_objects_list','Details':str(e)}, status=500, safe=False)
 
-    def creat_new(self, model, **kwargs):
+    def create_new(self, model, **kwarg):
         loggr.info('///MOVE TO dviews.creat_new()')
         try:
-            instance = model.objects.create(**kwargs)
+            instance = model.objects.create(**kwarg)
             if instance:
                 loggr.info('SUCCESS CREATING NEW INSTACE')
                 return instance
@@ -158,13 +158,9 @@ class Dal(View):
     def exchange_guard(self, shift_id, guard_id, substitute_guard_id):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
-            loggr.info(f"SHIFT_ID: {shift_id}")
-
-            shift_instance = Shift.objects.get(shift_id=int(shift_id))
-            loggr.info(f"Shift instance retrieved: {shift_instance}")
-            substitute_guard = Families.objects.get(family_id=substitute_guard_id)
-            loggr.info(f"Substitute guard retrieved: {substitute_guard}")
-            current_guard = shift_instance.family_id.filter(family_id=guard_id).first()
+            shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
+            substitute_guard = Families.objects.get(family_id=substitute_guard_id.family_id)
+            current_guard = shift_instance.family_id.filter(family_id=guard_id.family_id).first()
             if current_guard:
                 shift_instance.family_id.remove(current_guard)
                 loggr.info(f"Removed current guard: {current_guard}")

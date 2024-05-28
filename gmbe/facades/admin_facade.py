@@ -1,7 +1,7 @@
 from ..api.serislizers_views import api_get_list
 from ..dal.models import *
 from ..api.serializers import *
-from ..api.serislizers_views import api_instance_by_date
+from ..api.serislizers_views import api_instance_by_date, api_create_new
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
@@ -110,9 +110,17 @@ class AdminFacade():#(AnonymousFacade)
         
     def reg_exchange_guard(self, request):
         loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
-        request_data = exchange_request_data(request)
-        loggr.info(f'REQUEST DATA: {request_data}')
-        reg_exchange = dal.exchange_guard(request_data['shift_id'], request_data['guard_id'], request_data['substitute_guard_id'])
+        ex_type = 'ordinary'
+        request_data = exchange_request_data(request, ex_type)
+        if isinstance(request_data, JsonResponse):
+            return request_data
+        reg_exchange = dal.exchange_guard(request_data['shift_id'], request_data['origin_guard_id'], request_data['substitute_guard_id'])
         if reg_exchange:
-            loggr.info(f'REG_EXCHANGE:{reg_exchange}')
+            loggr.info('OK_EXCHANGE')
+            write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
+            if write_exchange:
+                loggr.info(f'OK_write_exchange: {write_exchange}')
+                return write_exchange
+        loggr.info('write_exchange: none')  
+        return None
 

@@ -72,10 +72,11 @@ class Exchanges(models.Model):
     exchange_date = models.CharField(max_length=15 , default='')
     exchange_day = models.CharField(max_length=15 , default='')
     exchange_hour = models.CharField(max_length=8 , default='')
+    position_id = models.ForeignKey(Position, on_delete=models.CASCADE, related_name='Exchanges_position_id', default='')
     origin_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_origin_guard_id', default='')
     substitute_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_substitute_guard_id', default='')
     exchange_type = models.CharField(max_length=8 , default='')
-
+    shift_id = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='Exchanges_shift_id', default='')
 
 class PaidGuards(models.Model):
 
