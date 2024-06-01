@@ -39,3 +39,47 @@ def exchange_request_data(request, ex_type):
     except Exception as e:
         return JsonResponse({'status':'error', 'details':e}, status=500, save=False)
 
+def cross_exchange_request_data(request, ex_type):
+    loggr.info('///MOVE TO cross_exchange_request_data.requests_data()')
+    try:
+        gaurd_id1 = request.data.get('selectedRow').get('guardId')
+        shift_id1 = request.data.get('selectedRow').get('shiftId')
+        position_id1 = request.data.get('selectedRow').get('posId')
+        list_date1 = request.data.get('selectedRow').get('glistDate')
+        list_day1 = request.data.get('selectedRow').get('glistDay')
+        shift_hour1 = request.data.get('selectedRow').get('shiftHour')
+
+         # fetch required instances
+        position_instance1 = Position.objects.get(position_id = position_id1)
+        guard_instance1 = Families.objects.get(family_id = gaurd_id1)
+        shift_instance1 = Shift.objects.get(shift_id=shift_id1)
+        
+        gaurd_id2 = request.data.get('selectedRow').get('guardId')
+        shift_id2 = request.data.get('selectedRow').get('shiftId')
+        position_id2 = request.data.get('selectedRow').get('posId')
+        list_date2 = request.data.get('selectedRow').get('glistDate')
+        list_day2 = request.data.get('selectedRow').get('glistDay')
+        shift_hour2 = request.data.get('selectedRow').get('shiftHour')
+
+         # fetch required instances
+        position_instance2 = Position.objects.get(position_id = position_id2)
+        guard_instance2 = Families.objects.get(family_id = gaurd_id2)
+        shift_instance2 = Shift.objects.get(shift_id=shift_id2)
+
+        
+
+        exchange_data = {
+            'origin_guard_id': origin_guard_instance1,
+            'shift_id': shift_instance1,
+            'position_id': position_instance1,
+            'exchange_date': list_date1,
+            'exchange_day': list_day1,
+            'exchange_hour': shift_hour1,
+            'exchange_type': ex_type,
+        }
+
+        return exchange_data
+    
+    except Exception as e:
+        return JsonResponse({'status':'error', 'details':e}, status=500, save=False)
+
