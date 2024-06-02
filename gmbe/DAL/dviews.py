@@ -176,14 +176,19 @@ class Dal(View):
             loggr.error(f"ERROR dviews.exchange_guard(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
 
-
-
-
-
-
-
-
-
+    def get_instance_by_entity_id(self, model, instance, entity_id):
+        loggr.info('///MOVE TO dviews.get_instance_by_entity_id()')
+        try:
+            kwargs = {instance: entity_id}
+            fetched_instance = model.objects.get(**kwargs)
+            if fetched_instance: 
+                loggr.info(f'OK GOT INSTANCE at dviews.get_instance_by_entity_id()')
+                return fetched_instance
+            loggr.error("ERROR AT dviews.get_instance_by_entity_id() - fetch_instance NOT FOUND")
+            return None
+        except Exception as e:
+            loggr.error(f"ERROR dviews.get_instance_by_entity_id(): {str(e)}")
+            return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
 
 
 

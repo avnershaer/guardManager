@@ -144,7 +144,18 @@ def api_get_last_id():
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_last_id():{e}')
         return JsonResponse({'status:':'ERROR AT serializers_views.api_get_last_id()','details:':str(e)}, status=500, safe=False)
-    
+
+def api_get_instance_by_entity_id(model, instance, entity_id):
+    loggr.info('///MOVE TO serializers_views.api_get_instance_by_entity_id()')
+    try:
+        fetched_instance = dal.get_instance_by_entity_id(model, instance, entity_id)
+        if fetched_instance == None:
+            return None
+        return fetched_instance
+    except Exception as e:
+        loggr.error(f'ERROR AT serializers_views.api_get_instance_by_entity_id():{e}')
+        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_instance_by_entity_id()','details:':str(e)}, status=500, safe=False)
+
 def api_get_futu_lists():
     loggr.info('///MOVE TO serializers_views.api_get_futu_lists()')
     try:

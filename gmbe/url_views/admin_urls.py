@@ -100,6 +100,19 @@ def exchange_guard(request):
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
 
+@csrf_exempt
+@api_view(['PUT'])
+def cross_exchange_guards(request):
+    loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
+    if request.method != 'PUT':
+        return JsonResponse({'error': 'PUT requests only!'}, status=405)  
+    try:
+        exchange_result = admin_facade.reg_exchange_guard(request)
+        loggr.info(f'OK exchange_guard')
+        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
+
 
 
 
