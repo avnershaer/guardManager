@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
-from ..utils.operations_funcs import get_last_id
+from ..utils.operations_funcs import get_last_id, handle_exchange_guard
 from ..utils.requests_data import exchange_request_data
 
 
@@ -90,7 +90,7 @@ class AdminFacade():#(AnonymousFacade)
             glist_shifts = dal.get_shifts_by_date_pos(glist_date, glist_position_id)
             loggr.info(f'^^^^glist_shifts:{glist_shifts}')
             
-            guarding_list = dal.creat_new(
+            guarding_list = dal.create_new(
                 GuardingList,
                 last_guard_id = last_guard_id,  
                 glist_position_id = glist_position_id,
@@ -116,45 +116,43 @@ class AdminFacade():#(AnonymousFacade)
             loggr.error((f'ERROR at admin_facade.save_guarding_list:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
         
-    def reg_exchange_guard(self, request):
+    def reg_exchange_guard(self, request, ex_type):
         loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
         try:
-            ex_type = 'ordinary'
             ex_data = request.data.get('selectedRow')
             substitute_guard = request.data.get('substituteGuard').get('family_id')
-            request_data = exchange_request_data(ex_type, ex_data, substitute_guard)
-            if isinstance(request_data, JsonResponse):
-                return request_data
-            reg_exchange = dal.exchange_guard(
-                request_data['shift_id'], 
-                request_data['origin_guard_id'], 
-                request_data['substitute_guard_id']
-                )
-            if reg_exchange:
-                loggr.info('OK_EXCHANGE')
-                write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
-                if write_exchange:
-                    loggr.info(f'OK_write_exchange: {write_exchange}')
-                    return write_exchange
-            loggr.info('write_exchange: none')  
-            return None
+            exchange_result = handle_exchange_guard(ex_type, ex_data, substitute_guard)
+            if exchange_result == None:
+                return None
+            return exchange_result
         except Exception as e:
             loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
     
-    def cross_exchange_guard(self, request):
+    def cross_exchange_guard(self, request, ex_type):
         loggr.info('///MOVE TO admin_facade.cross_exchange_guard()')
-        ex_type = 'cross'
-        request_data = exchange_request_data(ex_type)
-        if isinstance(request_data, JsonResponse):
-            return request_data
-        reg_exchange = dal.exchange_guard(request_data['shift_id'], request_data['origin_guard_id'], request_data['substitute_guard_id'])
-        if reg_exchange:
-            loggr.info('OK_EXCHANGE')
-            write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
-            if write_exchange:
-                loggr.info(f'OK_write_exchange: {write_exchange}')
-                return write_exchange
-        loggr.info('write_exchange: none')  
-        return None
+        try:
+            exchange_result = {'first':None, 'second':None}
 
+            ex_data = request.data.get('selectedRow')
+            substitute_guard = request.data.get('substituteGuard').get('guardId')
+
+            first_exchange_result = handle_exchange_guard(ex_type, ex_data, substitute_guard)
+            if first_exchange_result == None:
+                return None
+            exchange_result['first'] = first_exchange_result
+            
+            ex_data = request.data.get('substituteGuard')
+            substitute_guard = request.data.get('selectedRow').get('guardId')
+            second_exchange_result = handle_exchange_guard(ex_type, ex_data, substitute_guard)
+            if second_exchange_result == None:
+                return None
+            exchange_result['second'] = second_exchange_result
+            return exchange_result
+        
+        except Exception as e:
+            loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
+            return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
+
+
+    

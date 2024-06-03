@@ -82,5 +82,5 @@ class PaidGuards(models.Model):
 
     paid_guard_id = models.BigAutoField(primary_key=True)
     pguard_name = models.CharField(max_length=100, blank=False, null=False, default='')
-    puard_phone = models.CharField(max_length = 25, blank=True, null=True)
-    puard_family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='PaidGuards_family_id', default='')
+    pguard_phone = models.CharField(max_length = 25, blank=True, null=True)
+    pguard_family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='PaidGuards_family_id', default='')   

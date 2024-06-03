@@ -1,7 +1,6 @@
 from loggers.loggers import logger, err_logger
 from django.http import JsonResponse
 from ..dal.models import Position, Families, Shift
-from ..api.serislizers_views import api_get_instance_by_entity_id
 
 
 loggr = logger()
@@ -9,6 +8,7 @@ errlogger = err_logger()
 
 def fetch_required_instances(model, instance, entity_id):
     loggr.info('///MOVE TO requests_data.fetch_required_instances()')
+    from ..api.serislizers_views import api_get_instance_by_entity_id
     try:
         instance = api_get_instance_by_entity_id(model, instance, entity_id)
         if instance == None:

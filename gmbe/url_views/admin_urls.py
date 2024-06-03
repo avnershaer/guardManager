@@ -16,7 +16,6 @@ def families_list(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  # Return a 405 Method Not Allowed error
     try:
-        loggr.info('OK ------------got test 1')
         # get list of all families  
         families_list = admin_facade.get_all_families(request)
         # successful response with the list 
@@ -63,12 +62,11 @@ def shifts_list(request):
 @api_view(['POST'])
 def create_guard_list(request):
     loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
-
     if request.method != 'POST':
         return JsonResponse({'error': 'POST requests only!'}, status=405)  
     try:
         guard_list = admin_facade.create_guard_list(request)
-        loggr.info(f'got guard_list at admin_urls.create_guard_list() : {guard_list}')
+        loggr.info('got guard_list at admin_urls.create_guard_list()')
         return JsonResponse({'status':'success', 'Details': guard_list}, status=200, safe=False)
     
     except Exception as e:
@@ -82,7 +80,7 @@ def save_guarding_list(request):
         return JsonResponse({'error': 'POST requests only!'}, status=405)  
     try:
         glist = admin_facade.save_guarding_list(request)
-        loggr.info(f'O.K GLIST:{str(glist)}')
+        loggr.info(f'O.K GLIST')
         return glist
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)})
@@ -94,7 +92,10 @@ def exchange_guard(request):
     if request.method != 'PUT':
         return JsonResponse({'error': 'PUT requests only!'}, status=405)  
     try:
-        exchange_result = admin_facade.reg_exchange_guard(request)
+        ex_type = 'ordinary'
+        exchange_result = admin_facade.reg_exchange_guard(request, ex_type)
+        if exchange_result == None:
+            return JsonResponse({'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, status=200, safe=False)
         loggr.info(f'OK exchange_guard')
         return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
     except Exception as e:
@@ -107,8 +108,9 @@ def cross_exchange_guards(request):
     if request.method != 'PUT':
         return JsonResponse({'error': 'PUT requests only!'}, status=405)  
     try:
-        exchange_result = admin_facade.reg_exchange_guard(request)
-        loggr.info(f'OK exchange_guard')
+        ex_type = 'cross'
+        exchange_result = admin_facade.cross_exchange_guard(request, ex_type)
+        loggr.info(f'OK cross exchange_guards')
         return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)

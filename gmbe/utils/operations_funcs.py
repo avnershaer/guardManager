@@ -1,9 +1,14 @@
-from loggers.loggers import logger
+from loggers.loggers import logger, err_logger
 from django.http import JsonResponse
 from ..api.serializers import *
-from datetime import datetime
-from ..dal.models import Shift
+from ..utils.requests_data import exchange_request_data
+from ..dal.models import Shift, Exchanges
+from ..dal.dviews import Dal
+
+
+dal = Dal()
 loggr = logger()
+errlogger = err_logger()
 
 
 # serialize recived data
@@ -82,7 +87,33 @@ def english_to_hebrew_days():
     'Sunday': 'יום ראשון'
     }
 
+def handle_exchange_guard(ex_type, ex_data, substitute_guard):
+        loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
+        from ..api.serislizers_views import api_create_new
+        try:
+            request_data = exchange_request_data(ex_type, ex_data, substitute_guard)
+            if isinstance(request_data, JsonResponse):
+                return request_data
+            
+            reg_exchange = dal.exchange_guard(
+                request_data['shift_id'], 
+                request_data['origin_guard_id'], 
+                request_data['substitute_guard_id']
+                )
+            
+            if reg_exchange:
+                loggr.info('OK_EXCHANGE')
+                write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
+                if write_exchange:
+                    loggr.info(f'OK_write_exchange: {write_exchange}')
+                    return write_exchange
+            
+            loggr.info('write_exchange: none')  
+            return None
         
+        except Exception as e:
+            loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
+            return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
 
     
 

@@ -235,7 +235,7 @@ def save_shift_details(request, shifts):
             loggr.info(f'------guards:{guards}')
             
             
-            shift = dal.creat_new(
+            shift = dal.create_new(
                 model=Shift, 
                 position_id=position_id, 
                 shift_hour=shift_hour, 
