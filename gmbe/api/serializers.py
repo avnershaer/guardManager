@@ -93,10 +93,3 @@ class ExchangesSerializer(serializers.ModelSerializer):
             ]
         
 
-class PaidGuardsSerializer(serializers.ModelSerializer):
-
-    puard_family_id = FamiliesSerializer(read_only=True)
-
-    class Meta:
-        model = models.PaidGuards
-        fields = ['paid_guard_id', 'pguard_name', 'puard_phone', 'puard_family_id']

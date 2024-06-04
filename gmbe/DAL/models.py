@@ -12,19 +12,28 @@ class UserRole(models.Model):
         return self.role_name
     
 
+class CustomUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_role = models.ForeignKey(UserRole, on_delete=models.CASCADE, related_name='Custom_user_role', default='')
+
+
 class Families(models.Model):
 
     family_id = models.BigAutoField(primary_key=True)
     family_name = models.CharField(max_length=100, blank=False, null=False, default='')
-    family_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
     name1 = models.CharField(max_length = 25, blank=False, null=False)
+    family_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
     phone1 = models.CharField(max_length = 25, blank=False, default='', null=False, unique=True)
     armed1 = models.BooleanField(default = False)
     name2 = models.CharField(max_length = 25, blank=True, null=True)
+    family_pic2 = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
     phone2 = models.CharField(max_length = 25, blank=True, null=True)
     armed2 = models.BooleanField(default = False)
-    id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    role_name = models.ForeignKey(UserRole, on_delete=models.CASCADE, null=True)
+    pguard_name = models.CharField(max_length = 25, blank=True, null=True)
+    pguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
+    pguard_phone = models.CharField(max_length = 25, blank=True, null=True)
+    pguard_armed = models.BooleanField(default = False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     
     def __str__(self) -> str:
         return self.family_name
@@ -76,11 +85,23 @@ class Exchanges(models.Model):
     origin_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_origin_guard_id', default='')
     substitute_guard_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='Exchanges_substitute_guard_id', default='')
     exchange_type = models.CharField(max_length=8 , default='')
-    shift_id = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='Exchanges_shift_id', default='')
+    shift_id = models.ForeignKey(
+        Shift, 
+        on_delete=models.CASCADE, 
+        related_name='Exchanges_shift_id', 
+        default=''
+        )
+
 
 class PaidGuards(models.Model):
 
-    paid_guard_id = models.BigAutoField(primary_key=True)
-    pguard_name = models.CharField(max_length=100, blank=False, null=False, default='')
-    pguard_phone = models.CharField(max_length = 25, blank=True, null=True)
-    pguard_family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='PaidGuards_family_id', default='')   
+    pguard_id = models.BigAutoField(primary_key=True)
+    pguard_family_id = models.ForeignKey(
+        Families, 
+        on_delete=models.CASCADE, 
+        related_name='pguard_family_id', 
+        default=''
+        ) 
+    
+    def __str__(self) -> str:
+        return (self.pguard_family_id.pguard_name + ' ' + self.pguard_family_id.family_name)
