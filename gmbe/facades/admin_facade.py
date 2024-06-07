@@ -45,6 +45,15 @@ class AdminFacade():#(AnonymousFacade)
         except Exception as e:
             return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
         
+    
+    def get_paid_guards_list(self, request):
+        loggr.info('///MOVE TO admin_facade.get_Positions_list()')
+        try:
+            paid_guards_list = api_get_list(instance_model=PaidGuards, model_serializer=PaidGuardsSerializer)
+            return paid_guards_list
+        except Exception as e:
+            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
+        
     def get_shifts_list(self, request):
         loggr.info('///MOVE TO admin_facade.get_shifts_list()')
         try:

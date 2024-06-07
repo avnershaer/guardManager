@@ -40,11 +40,11 @@ def api_get_list(instance_model, model_serializer):
             return objects_list
         elif objects_list == None:
             return None
-        serialized_lists =serialize_data(
-            model_serializer=model_serializer, 
-            instance_model=instance_model, 
-            objects=objects_list, 
-            many=True
+        serialized_lists = serialize_data(
+            model_serializer =model_serializer, 
+            instance_model = instance_model, 
+            objects = objects_list, 
+            many = True
             ).data
         return serialized_lists
     except Exception as e:

@@ -33,7 +33,7 @@ class Dal(View):
         try:
             guarding_lists = model.objects.filter(glist_date__range=(date1, date2))
             if guarding_lists:
-                loggr.info(f'OK GOT GUARDING LISTS:{guarding_lists}')
+                loggr.info(f'OK GOT GUARDING LISTS')
                 return guarding_lists
             loggr.error('ERROR: GOT NO GUARDING LISTS')
             return None
@@ -43,7 +43,6 @@ class Dal(View):
     def get_instance_by_date(self, model, obj_date, date):
         loggr.info('///MOVE TO  dviews. get_instance_by_date()')
         try:
-            loggr.info(f'***obj_date:{obj_date}, ***date:{date}')
             instance = model.objects.filter(**{obj_date:date})
             if instance:
                 loggr.info(f'instance: {instance}')

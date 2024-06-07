@@ -8,6 +8,7 @@ urlpatterns = [
     path('families_list', admin_urls.families_list, name='families_list'),
     path('users_list', admin_urls.users_list, name='users_list'),
     path('positions_list', admin_urls.positions_list, name='positions_list'),
+    path('paid_guards_list', admin_urls.paid_guards_list, name='paid_guards_list'),
     path('shifts_list', admin_urls.shifts_list, name='shifts_list'),
     path('guarding_list', common_urls.guarding_list, name='guarding_list'),
     path('create_guard_list', admin_urls.create_guard_list, name='create_guard_list'),

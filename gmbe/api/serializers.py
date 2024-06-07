@@ -92,4 +92,12 @@ class ExchangesSerializer(serializers.ModelSerializer):
             'exchange_type'
             ]
         
+class PaidGuardsSerializer(serializers.ModelSerializer):
+
+    pguard_family_id = FamiliesSerializer(read_only=True)
+
+    class Meta:
+        model = models.PaidGuards
+        fields = ['pguard_id', 'pguard_family_id']
+        
 

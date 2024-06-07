@@ -46,6 +46,18 @@ def positions_list(request):
     except Exception as e:
         return JsonResponse({'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, status=500, safe=False)
     
+
+@csrf_exempt    
+@api_view(['GET'])
+def paid_guards_list(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405)  
+    try:
+        paid_guards_list=admin_facade.get_paid_guards_list(request)
+        return JsonResponse({'details':paid_guards_list}, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, status=500, safe=False)
+    
 @csrf_exempt
 @api_view(['GET'])
 def shifts_list(request):
