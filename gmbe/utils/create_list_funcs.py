@@ -2,8 +2,8 @@ from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..dal.dviews import Dal
 from ..utils.operations_funcs import english_to_hebrew_days, get_shift_last_id
-from ..dal.models import GuardingList, Families, SetGuardingList, Position, Shift
-from ..api.serializers import GuardinglistSerializer, SetGuardingListSerializer, FamiliesSerializer, PositionSerializer
+from ..dal.models import GuardingList, Families, SetGuardingList, Position, Shift, Fguard
+from ..api.serializers import FguardSerializer, SetGuardingListSerializer, FamiliesSerializer, PositionSerializer
 from datetime import time, timedelta, datetime
 from ..api.serislizers_views import api_get_last_id
 import json
@@ -166,11 +166,11 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
     num_objects=int(num_of_shifts) * int(num_of_gards)
     loggr.info(f'num_objects:{num_objects}')
     model=Families
-    guards_list = dal.set_table_object_list(model, num_objects, starting_id=int(starting_user_id) )
-    if isinstance(guards_list, JsonResponse):
-            errlogger.error(f'error got no id list:{guards_list}')
-            return guards_list
-    loggr.info(f'got guards_list at create_list_funcs.create_shifts_dict()--{guards_list}  ')
+    family_list = dal.set_table_object_list(model, num_objects, starting_id=int(starting_user_id) )
+    if isinstance(family_list, JsonResponse):
+            errlogger.error(f'error got no id list:{family_list}')
+            return family_list
+    loggr.info(f'got guards_list at create_list_funcs.create_shifts_dict()--{family_list}  ')
     shifts = {}
 
     # Loop through each shift hour
@@ -182,7 +182,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
         shift_dict = {
             'shift_num': shift + 1, 
             'shift_hour': shift_hour.strftime("%H:%M"), 
-            'guards': [],              # hour format^
+            'guards': {},              # hour format^
             'position_id':serialized_position
             }
                                                                         
@@ -192,25 +192,33 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
    
         # Generate IDs for guards for this shift
         for guard_num in range(int(num_of_gards)):
-            # Check if there are still guards available
-            if guards_list:
-                guard_id = guards_list.pop(0)  # remove and get the first id from id_list
-                loggr.info(f'<><><>guard id{guard_id}')
-                serialized_guard = FamiliesSerializer(guard_id).data
-                shift_dict['guards'].append(serialized_guard) # appending the guard/s to shift dict on ['guards']
+            if family_list:
+                #get family instance
+                family_instance = family_list.pop(0)  # remove and get the first id from id_list
+                loggr.info(f'<><><>guard id{family_instance}')
+                serialized_family = FamiliesSerializer(family_instance).data
+                # get fgaurd instance
+                fguards = dal.get_field_name_by_id(Fguard, 'family_id', family_instance.family_id)
+                if fguards:
+                    for fguard in fguards:
+                        serialized_fguard = FguardSerializer(fguard).data
+                        # unique key for each guard
+                        guard_key = f"{family_instance.family_id}_{fguard.fguard_id}"
+                        shift_dict['guards'][guard_key] = {
+                            'family': serialized_family,
+                            'guard_details': serialized_fguard
+                        }
                 loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
-
             else:
                 loggr.error("No more guards available!")
-                # Handle the error accordingly, either by breaking out of the loop or returning an error response
-                # For example:
-                # return JsonResponse({'error': 'No more guards available!'}, status=500)
+                # ***TO ADD** JsonResponse({'error': 'No more guards available!'}, status=500)
         shifts[shift + 1] = shift_dict 
     loggr.info(f'LAST SHIFT DICT HOURS : {shift_dict} ')  
     loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
     last_id = get_shift_last_id(shift_dict)
     return {'shifts':shifts, 'last_id':last_id}
        
+
 def save_shift_details(request, shifts):
     loggr.info('<>OK move to create_list_funcs.save_shift_details()')
     try:

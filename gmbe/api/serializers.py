@@ -8,6 +8,40 @@ class FamiliesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PaidGuardsSerializer(serializers.ModelSerializer):
+
+    pguard_family_id = FamiliesSerializer(read_only=True)
+
+    class Meta:
+        model = models.PaidGuards
+        fields = [
+            'pguard_id', 
+            'pguard_family_id', 
+            'pguard_name', 
+            'pguard_phone', 
+            'pguard_email', 
+            'armed', 
+            'pguard_pic'
+            ]
+        
+
+class FguardSerializer(serializers.ModelSerializer):
+
+    family_id = FamiliesSerializer(read_only=True)
+
+    class Meta:
+        model = models.Fguard
+        fields = [
+            'fguard_id', 
+            'family_id', 
+            'fguard_name', 
+            'fguard_phone', 
+            'fguard_email', 
+            'armed', 
+            'fguard_pic'
+            ]
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -92,12 +126,3 @@ class ExchangesSerializer(serializers.ModelSerializer):
             'exchange_type'
             ]
         
-class PaidGuardsSerializer(serializers.ModelSerializer):
-
-    pguard_family_id = FamiliesSerializer(read_only=True)
-
-    class Meta:
-        model = models.PaidGuards
-        fields = ['pguard_id', 'pguard_family_id']
-        
-

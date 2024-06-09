@@ -21,22 +21,41 @@ class Families(models.Model):
 
     family_id = models.BigAutoField(primary_key=True)
     family_name = models.CharField(max_length=100, blank=False, null=False, default='')
-    name1 = models.CharField(max_length = 25, blank=False, null=False)
-    family_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
-    phone1 = models.CharField(max_length = 25, blank=False, default='', null=False, unique=True)
-    armed1 = models.BooleanField(default = False)
-    name2 = models.CharField(max_length = 25, blank=True, null=True)
-    family_pic2 = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
-    phone2 = models.CharField(max_length = 25, blank=True, null=True)
-    armed2 = models.BooleanField(default = False)
-    pguard_name = models.CharField(max_length = 25, blank=True, null=True)
-    pguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
-    pguard_phone = models.CharField(max_length = 25, blank=True, null=True)
-    pguard_armed = models.BooleanField(default = False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     
     def __str__(self) -> str:
         return self.family_name
+    
+
+class Fguard(models.Model):
+    fguard_id = models.BigAutoField(primary_key=True)
+    family_id = models.ForeignKey(Families, on_delete=models.CASCADE, related_name='fguard_family_id', default='')
+    fguard_name =  models.CharField(max_length=100, blank=False, null=False, default='')
+    fguard_phone = models.CharField(max_length = 25, blank=False, default='', null=False, unique=True)
+    fguard_email = models.EmailField(max_length=200, unique=True, default='')
+    armed = models.BooleanField(default = False)
+    fguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
+
+    def __str__(self) -> str:
+        return (self.family_id.family_name + ' ' + self.fguard_name) 
+
+
+class PaidGuards(models.Model):
+    pguard_id = models.BigAutoField(primary_key=True)
+    pguard_family_id = models.ForeignKey(
+        Families, 
+        on_delete=models.CASCADE, 
+        related_name='pguard_family_id', 
+        default=''
+        ) 
+    pguard_name =  models.CharField(max_length=100, blank=False, null=False, default='')
+    pguard_phone = models.CharField(max_length = 25, blank=False, default='', null=False, unique=True)
+    pguard_email = models.EmailField(max_length=200, unique=True, default='')
+    armed = models.BooleanField(default = False)
+    pguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
+
+    def __str__(self) -> str:
+        return (self.pguard_family_id.family_name + ' ' + self.pguard_name)
     
 
 class Position(models.Model):
@@ -93,15 +112,3 @@ class Exchanges(models.Model):
         )
 
 
-class PaidGuards(models.Model):
-
-    pguard_id = models.BigAutoField(primary_key=True)
-    pguard_family_id = models.ForeignKey(
-        Families, 
-        on_delete=models.CASCADE, 
-        related_name='pguard_family_id', 
-        default=''
-        ) 
-    
-    def __str__(self) -> str:
-        return (self.pguard_family_id.pguard_name + ' ' + self.pguard_family_id.family_name)

@@ -61,8 +61,9 @@ def get_shift_last_id(shift_dict):
     id_list = []
     try:
         guards = shift_dict.get('guards', [])
+        family_id = [guards['guard_details'].get('family_id')]
         for guard in guards:
-            id_list.append(guard['family_id'])
+            id_list.append(family_id)
         loggr.info(f'ID LIST:{id_list}')
         if id_list:
             last_id = id_list[-1]

@@ -61,6 +61,19 @@ class Dal(View):
             return None
         except Exception as e:
             return JsonResponse({'status':'error', 'details':str(e)})
+    
+    def get_field_name_by_id(self, model, field_name, idd):
+        loggr.info('///MOVE TO  dviews. get_instance_by_date()')
+        try:
+            filter_args = {field_name: idd}
+            instances = model.objects.filter(**filter_args)
+            if instances.exists():
+                loggr.info(f'OK instances: {instances}')
+                return instances
+            loggr.info('No instances found.')
+            return None
+        except Exception as e:
+            return JsonResponse({'status':'error', 'details':str(e)})
 
     def get_instance_by_date_position(self, date, position):
         loggr.info('///MOVE TO dal.dalviws.get_instance_by_date_position()')

@@ -12,6 +12,7 @@ admin.site.register(Shift)
 admin.site.register(GuardingList)
 admin.site.register(Exchanges)
 admin.site.register(PaidGuards)
+admin.site.register(Fguard)
 
 
 
