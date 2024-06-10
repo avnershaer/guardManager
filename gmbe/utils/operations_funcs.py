@@ -56,15 +56,20 @@ def get_last_id():
         loggr.error(f'error at utils.operations_funcs.get_last_id():{e}')
         return e
 
+# get last id for guarding list
 def get_shift_last_id(shift_dict):
     loggr.info('GOT TO operations_funcs.get_shift_last_id()')
     id_list = []
     try:
-        guards = shift_dict.get('guards', [])
-        family_id = [guards['guard_details'].get('family_id')]
-        for guard in guards:
-            id_list.append(family_id)
-        loggr.info(f'ID LIST:{id_list}')
+        # iterate over the dictionary whith the guard keys
+        for guard_key, guard_data in shift_dict.items():
+            guards = guard_data.get('guards', {})
+            for guard_id, guard_details in guards.items():
+                family_id = guard_details.get('family', {}).get('family_id')
+                if family_id is not None:
+                    id_list.append(family_id)
+        
+        loggr.info(f'ID LIST: {id_list}')
         if id_list:
             last_id = id_list[-1]
             loggr.info(f'LAST ID:{last_id}')

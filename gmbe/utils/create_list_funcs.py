@@ -189,7 +189,6 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
         hour = hour + timedelta(hours=int(hours_per_shift))  # hour for shift
         
    
-   
         # Generate IDs for guards for this shift
         for guard_num in range(int(num_of_gards)):
             if family_list:
@@ -202,20 +201,18 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
                 if fguards:
                     for fguard in fguards:
                         serialized_fguard = FguardSerializer(fguard).data
-                        # unique key for each guard
-                        guard_key = f"{family_instance.family_id}_{fguard.fguard_id}"
+                        guard_key = len(shift_dict['guards']) + 1  # key for each guardstarting from 1
                         shift_dict['guards'][guard_key] = {
-                            'family': serialized_family,
-                            'guard_details': serialized_fguard
+                        'family': serialized_family,
+                        'guard_details': serialized_fguard
                         }
                 loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
             else:
                 loggr.error("No more guards available!")
                 # ***TO ADD** JsonResponse({'error': 'No more guards available!'}, status=500)
         shifts[shift + 1] = shift_dict 
-    loggr.info(f'LAST SHIFT DICT HOURS : {shift_dict} ')  
-    loggr.info(f'shift_dict guards been set to shift dict. SHIFT LIST: {shifts}')
-    last_id = get_shift_last_id(shift_dict)
+    loggr.info(f'shift_dict guards been set to shift dict.')
+    last_id = get_shift_last_id(shifts)
     return {'shifts':shifts, 'last_id':last_id}
        
 
