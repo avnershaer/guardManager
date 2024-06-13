@@ -229,16 +229,11 @@ def save_shift_details(request, shifts):
             loggr.info(f'------shift_date:{shift_date}')
             shift_day = request.data.get('list_day')
             loggr.info(f'------shift_day:{shift_day}')
-            
             position_id = request.data.get('shifts').get(str_shift_num).get('position_id')
             loggr.info(f'------position_id:{position_id}')
-            #get the position instance
             position_id = Position.objects.get(position_id=position_id['position_id'])
-
-            # gets the family id via guards dict
             guards = request.data.get('shifts').get(str_shift_num).get('guards')
             loggr.info(f'------guards:{guards}')
-            
             
             shift = dal.create_new(
                 model=Shift, 
@@ -247,16 +242,16 @@ def save_shift_details(request, shifts):
                 shift_date=shift_date, 
                 shift_day=shift_day, 
             )
-            for guard in guards:
-                family_id = guard['family_id']
-                loggr.info(f'------family_id:{family_id}')
+
+            for key, guard in guards.items():
+                family_id = guard['family']['family_id']
+                guard_id = guard['guard_details']['fguard_id']
+
+                guard_instance = Fguard.objects.get(pk=guard_id) # get guard instance 
+                shift.fguard_id.add(guard_instance) # add family instance to shifts family_id (ManyToManyField)
+                #family_instance = Families.objects.get(pk=family_id) # get family instance 
+                #shift.family_id.add(family_instance) # add family instance to shifts family_id (ManyToManyField)
                 
-                # get family instance and add it to the shift
-                family_instance = Families.objects.get(pk=family_id)
-                shift.family_id.add(family_instance)
-                # add family instance shift's family_id ManyToManyField
-                
-            
             loggr.info(f'------shift_details:{shift}')
         loggr.info('------O.K: SHIFTS DETAILS SAVED SUCCESSFULLY')
     except Exception as e:

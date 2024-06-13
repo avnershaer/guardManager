@@ -88,7 +88,7 @@ def create_guard_list(request):
 @api_view(['POST'])
 def save_guarding_list(request):
     loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
-    if request.method != 'POST':
+    if request.method !=    'POST':
         return JsonResponse({'error': 'POST requests only!'}, status=405)  
     try:
         glist = admin_facade.save_guarding_list(request)

@@ -42,7 +42,7 @@ class Fguard(models.Model):
 
 class PaidGuards(models.Model):
     pguard_id = models.BigAutoField(primary_key=True)
-    pguard_family_id = models.ForeignKey(
+    family_id = models.ForeignKey(
         Families, 
         on_delete=models.CASCADE, 
         related_name='pguard_family_id', 
@@ -69,7 +69,8 @@ class Position(models.Model):
 
 class Shift(models.Model):
     shift_id = models.BigAutoField(primary_key=True)
-    family_id = models.ManyToManyField(Families, related_name='shift_family_id')
+    fguard_id = models.ManyToManyField(Fguard, related_name='shift_fguard_id')
+    pguard_id = models.ManyToManyField(PaidGuards, related_name='shift_pguard_id')
     position_id = models.ForeignKey(Position, on_delete=models.CASCADE, related_name='Shift_position_id', default='')
     shift_hour = models.CharField(max_length=10, blank=False, null=False, default='')
     shift_date = models.DateField(default=timezone.now)

@@ -13,7 +13,7 @@ errlogger = err_logger()
 
 # serialize recived data
 def serialize_data(instance_model, model_serializer, objects, many):
-    loggr.info('got to operations_funcs.serialize_data()')
+    loggr.info('///MOVE TO operations_funcs.serialize_data()')
     try:
         # if there are objects to serialize
         if objects:
@@ -36,16 +36,16 @@ def serialize_data(instance_model, model_serializer, objects, many):
         return JsonResponse({'status:':'ERROR raised at operations_funcs.serialize_data:', 'details:':str(e)}, status=500, safe=False)
     
 def get_last_id():
-    loggr.info('got to operations_funcs.get_last_id()')
+    loggr.info('///MOVE TO operations_funcs.get_last_id()')
     try:
         shifts = Shift.objects.all()
         guards_id_list = []
         for shift in shifts:
-            guards = shift.family_id.all()
+            guards = shift.fguard_id.all()
             loggr.info(f'====**guards:{guards}')
             for guard in guards:
-                guards_id_list.append(guard.family_id)
-                loggr.info(f'======guard.id:{guard.family_id}')
+                guards_id_list.append(guard.fguard_id)
+                loggr.info(f'======guard.id:{guard.fguard_id}')
         # last family_id
         if guards_id_list:
             last_id = guards_id_list[-1]
@@ -58,7 +58,7 @@ def get_last_id():
 
 # get last id for guarding list
 def get_shift_last_id(shift_dict):
-    loggr.info('GOT TO operations_funcs.get_shift_last_id()')
+    loggr.info('///MOVE TO operations_funcs.get_shift_last_id()')
     id_list = []
     try:
         # iterate over the dictionary whith the guard keys
@@ -79,10 +79,10 @@ def get_shift_last_id(shift_dict):
             return None
     except Exception as e:
         loggr.error(f'ERROR at operations_funcs.get_shift_last_id(): {e}')
-        return JsonResponse({'status:':'ERROR raised at operations_funcs.serialize_data:', 'details:':str(e)}, status=500, safe=False)
+        return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
 
 def english_to_hebrew_days():
-    loggr.info(f'GOT TO operation_funcs.create_guarding_list()')
+    loggr.info('///MOVE TO operations_funcs.english_to_hebrew_days()')
     return {
     'Monday': 'יום שני',
     'Tuesday': 'יום שלישי',
@@ -94,7 +94,7 @@ def english_to_hebrew_days():
     }
 
 def handle_exchange_guard(ex_type, ex_data, substitute_guard):
-        loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
+        loggr.info('///MOVE TO operations_funcs.handle_exchange_guard()')
         from ..api.serislizers_views import api_create_new
         try:
             request_data = exchange_request_data(ex_type, ex_data, substitute_guard)
@@ -118,10 +118,38 @@ def handle_exchange_guard(ex_type, ex_data, substitute_guard):
             return None
         
         except Exception as e:
-            loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
+            loggr.error((f'ERROR at operations_funcs.handle_exchange_guard:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
 
     
+def get_family_id_from_glist(guarding_list):
+    loggr.info('///MOVE TO operations_funcs.get_family_id_from_glist()')
+    try:
+        for item in guarding_list:
+            # shifts in guarding list
+            shifts = item.get('shifts', [])
+            for shift in shifts:
+                # family_id in shift
+                family_ids = shift.get('fguard_id', [])
+                for family in family_ids:
+                    family_id = family.get('family_id')
+                    loggr.info(f'GUARDING LIST - FAMILY_ID: {family_id}')
+        return family_id
+    except Exception as e:
+        loggr.error((f'ERROR operations_funcs.get_family_id_from_glist:{e}'))
+        return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
+
+def get_guard_by_family_id(model, family_id):
+    loggr.info('///MOVE TO operations_funcs.get_guard_by_family_id()')
+    try:    
+        guard_id = dal.get_field_name_by_id(model, 'family_id', family_id)
+        if guard_id == None:
+            return None
+        return guard_id
+    except Exception as e:
+        loggr.error((f'ERROR operations_funcs.get_guard_by_family_id:{e}'))
+        return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
+
 
 
     

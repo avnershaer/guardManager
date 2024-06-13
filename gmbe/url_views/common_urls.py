@@ -78,14 +78,14 @@ def get_list_by_date_position(request, date, position_id):
 @csrf_exempt
 @api_view(['GET'])
 def guarding_list(request):
-    loggr.info(f'{request} request recived - admin_urls.guarding_list()')
+    loggr.info(f'{request} request recived - common_urls.guarding_list()')
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         guarding_list = common_fadcade.get_guarding_list(request)
         if guarding_list == None:
             return JsonResponse({'status':'none', 'details':'לא נמצאה רשימת שמירה לתאריך הנ"ל'}, status=404, safe=False)
-        loggr.info(f'GLIST BY DATE and POSITION:{str(guarding_list)}')
+        loggr.info(f'GUARDING LIST:{str(guarding_list)}')
         return JsonResponse({'status':'success', 'Details':guarding_list}, status=200, safe=False)
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)        

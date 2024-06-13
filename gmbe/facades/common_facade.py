@@ -1,9 +1,9 @@
 from loggers.loggers import logger, err_logger
 from ..api.serislizers_views import api_get_lists_by_dates, api_instance_by_date, api_get_instance_by_date_position, api_get_list, api_get_glist_by_id, api_get_futu_lists
 from django.http import JsonResponse
-from ..dal.models import GuardingList
+from ..dal.models import GuardingList, Fguard
 from ..api.serializers import GuardinglistSerializer
-
+from ..utils.operations_funcs import get_family_id_from_glist, get_guard_by_family_id
 
 loggr = logger()
 errlogger = err_logger()
@@ -84,6 +84,8 @@ class CommonFacade():
                   loggr.info(f'GUARDING LIST == NONE')
                   return None
             loggr.info(f'GUARDING LIST:{guarding_list}')
+            #family_id = get_family_id_from_glist(guarding_list)
+            #guard_id = get_guard_by_family_id(Fguard, family_id)
             return guarding_list
         except Exception as e:
             loggr.error(f'ERROR AT common_facade.get_guarding_list():{e}') 

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
-from ..utils.operations_funcs import get_last_id, handle_exchange_guard
+from ..utils.operations_funcs import get_last_id, handle_exchange_guard, serialize_data
 from ..utils.requests_data import exchange_request_data
 
 
@@ -82,8 +82,12 @@ class AdminFacade():#(AnonymousFacade)
             
             glist_last_id = get_last_id()
             loggr.info(f'^^^^glist_last_id:{glist_last_id}')
-            last_guard_id = Families.objects.get(family_id=glist_last_id)
-            loggr.info(f'^^^^last_guard_id:{last_guard_id}')
+            last_fguard_id = Fguard.objects.get(fguard_id=glist_last_id)
+            loggr.info(f'^^^^last_guard_id:{last_fguard_id}')
+            last_guard_id = last_fguard_id.family_id.family_id
+            loggr.info(f'^^^^last_family_id:{last_guard_id}')
+            
+            family_instance = Families.objects.get(family_id=last_guard_id)
 
             glist_position_id = request.data.get('shifts').get('1').get('position_id').get('position_id')
             glist_position_name = request.data.get('shifts').get('1').get('position_id').get('position_name')
@@ -101,7 +105,7 @@ class AdminFacade():#(AnonymousFacade)
             
             guarding_list = dal.create_new(
                 GuardingList,
-                last_guard_id = last_guard_id,  
+                last_guard_id = family_instance,  
                 glist_position_id = glist_position_id,
                 glist_date = glist_date,
                 glist_day = glist_day 
