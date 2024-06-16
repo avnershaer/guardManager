@@ -13,6 +13,7 @@ errlogger = err_logger()
 @csrf_exempt
 @api_view(['GET'])
 def families_list(request):
+    loggr.info(f'{request} request recived - admin_urls.families_list()')
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  # Return a 405 Method Not Allowed error
     try:
@@ -27,17 +28,19 @@ def families_list(request):
 @csrf_exempt  
 @api_view(['GET'])
 def users_list(request):
+    loggr.info(f'{request} request recived - admin_urls.users_list()')
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         users_list = admin_facade.get_all_users(request)
         return JsonResponse({'details:':users_list}, status=200, safe=False)
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse({'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, status=500, safe=False)
 
 @csrf_exempt    
 @api_view(['GET'])
 def positions_list(request):
+    loggr.info(f'{request} request recived - admin_urls.positions_list()')
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
@@ -50,13 +53,14 @@ def positions_list(request):
 @csrf_exempt    
 @api_view(['GET'])
 def paid_guards_list(request):
+    loggr.info(f'{request} request recived - admin_urls.paid_guards_list()')
     if request.method != 'GET':
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         paid_guards_list=admin_facade.get_paid_guards_list(request)
         return JsonResponse({'details':paid_guards_list}, status=200, safe=False)
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse({'status': 'ERROR at url_views.admin_urls.paid_guards_list()','details':str(e)}, status=500, safe=False)
     
 @csrf_exempt
 @api_view(['GET'])
@@ -87,8 +91,8 @@ def create_guard_list(request):
 @csrf_exempt
 @api_view(['POST'])
 def save_guarding_list(request):
-    loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
-    if request.method !=    'POST':
+    loggr.info(f'{request} request recived - admin_urls.save_guarding_list()')
+    if request.method != 'POST':
         return JsonResponse({'error': 'POST requests only!'}, status=405)  
     try:
         glist = admin_facade.save_guarding_list(request)
@@ -100,7 +104,7 @@ def save_guarding_list(request):
 @csrf_exempt
 @api_view(['PUT'])
 def exchange_guard(request):
-    loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
+    loggr.info(f'{request} request recived - admin_urls.exchange_guard()')
     if request.method != 'PUT':
         return JsonResponse({'error': 'PUT requests only!'}, status=405)  
     try:
@@ -115,8 +119,24 @@ def exchange_guard(request):
 
 @csrf_exempt
 @api_view(['PUT'])
+def paid_exchange_guard(request):
+    loggr.info(f'{request} request recived - admin_urls.paid_exchange_guard()')
+    if request.method != 'PUT':
+        return JsonResponse({'error': 'PUT requests only!'}, status=405)  
+    try:
+        ex_type = 'paid'
+        exchange_result = admin_facade.paid_exchange_guard(request, ex_type)
+        if exchange_result == None:
+            return JsonResponse({'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, status=200, safe=False)
+        loggr.info(f'OK exchange_guard')
+        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
+
+@csrf_exempt
+@api_view(['PUT'])
 def cross_exchange_guards(request):
-    loggr.info(f'{request} request recived - admin_urls.create_guard_list()')
+    loggr.info(f'{request} request recived - admin_urls.cross_exchange_guards()')
     if request.method != 'PUT':
         return JsonResponse({'error': 'PUT requests only!'}, status=405)  
     try:

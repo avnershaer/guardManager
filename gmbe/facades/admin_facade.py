@@ -142,6 +142,19 @@ class AdminFacade():#(AnonymousFacade)
             loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
     
+    def paid_exchange_guard(self, request, ex_type):
+        loggr.info('///MOVE TO admin_facade.reg_exchange_guard()')
+        try:
+            ex_data = request.data.get('selectedRow')
+            substitute_guard = request.data.get('substituteGuard').get('family_id')
+            exchange_result = handle_exchange_guard(ex_type, ex_data, substitute_guard)
+            if exchange_result == None:
+                return None
+            return exchange_result
+        except Exception as e:
+            loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
+            return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
+    
     def cross_exchange_guard(self, request, ex_type):
         loggr.info('///MOVE TO admin_facade.cross_exchange_guard()')
         try:
@@ -154,7 +167,6 @@ class AdminFacade():#(AnonymousFacade)
             if first_exchange_result == None:
                 return None
             exchange_result['first'] = first_exchange_result
-            
             ex_data = request.data.get('substituteGuard')
             substitute_guard = request.data.get('selectedRow').get('guardId')
             second_exchange_result = handle_exchange_guard(ex_type, ex_data, substitute_guard)

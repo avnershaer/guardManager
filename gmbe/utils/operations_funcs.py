@@ -95,7 +95,7 @@ def english_to_hebrew_days():
 
 def handle_exchange_guard(ex_type, ex_data, substitute_guard):
         loggr.info('///MOVE TO operations_funcs.handle_exchange_guard()')
-        from ..api.serislizers_views import api_create_new
+        
         try:
             request_data = exchange_request_data(ex_type, ex_data, substitute_guard)
             if isinstance(request_data, JsonResponse):
@@ -109,6 +109,7 @@ def handle_exchange_guard(ex_type, ex_data, substitute_guard):
             
             if reg_exchange:
                 loggr.info('OK_EXCHANGE')
+                from ..api.serislizers_views import api_create_new
                 write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
                 if write_exchange:
                     loggr.info(f'OK_write_exchange: {write_exchange}')

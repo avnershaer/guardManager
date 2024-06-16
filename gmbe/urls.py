@@ -20,6 +20,7 @@ urlpatterns = [
     path('get_glist_by_id/<int:glist_id>', common_urls.get_glist_by_id, name='get_glist_by_id'),
     path('future_gurading_lists', common_urls.future_gurading_lists, name='future_gurading_lists'),
     path('exchange_guard', admin_urls.exchange_guard, name='exchange_guard'),
+    path('paid_exchange_guard', admin_urls.paid_exchange_guard, name='paid_exchange_guard'),
     path('cross_exchange_guards', admin_urls.cross_exchange_guards, name='cross_exchange_guards'),
 
 ]

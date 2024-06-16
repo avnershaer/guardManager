@@ -171,16 +171,16 @@ class Dal(View):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
             shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
-            substitute_guard = Families.objects.get(family_id=substitute_guard_id.family_id)
-            current_guard = shift_instance.family_id.filter(family_id=guard_id.family_id).first()
+            substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
+            current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id.fguard_id).first()
             if current_guard:
-                shift_instance.family_id.remove(current_guard)
+                shift_instance.fguard_id.remove(current_guard)
                 loggr.info(f"Removed current guard: {current_guard}")
-                shift_instance.family_id.add(substitute_guard)
+                shift_instance.fguard_id.add(substitute_guard)
                 shift_instance.save()
-                loggr.info(f'OK SAVED NEW REPLACED GUARD -- SHIFT INSTANCE: {shift_instance}')
+                loggr.info(f'OK SAVED NEW REPLACED GUARD')
                 if shift_instance:
-                    loggr.info(f'OK SAVED NEW REPLACED GUARD -- SHIFT INSTANCE: {shift_instance}')
+                    loggr.info(f'OK SAVED NEW REPLACED GUARD')
                     return shift_instance
                 return None
             return None
@@ -202,8 +202,17 @@ class Dal(View):
             loggr.error(f"ERROR dviews.get_instance_by_entity_id(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
 
-
-
+    def get_first_fguard_id_by_family_id(self, family_id):
+        loggr.info('///MOVE TO dviews.get_first_fguard_id_by_family_id()')
+        try:
+            first_fguard = Fguard.objects.filter(family_id=family_id).order_by('fguard_id').first()
+            if first_fguard:
+                return first_fguard.fguard_id
+            else:
+                return None
+        except Exception as e:
+            loggr.error(f"ERROR dviews.get_first_fguard_id_by_family_id(): {str(e)}")
+            return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
     #def get_shift_ids_by_date(self, shift_date):
     #    loggr.info('got to dal.get_shift_ids_by_date()')
     #    try:

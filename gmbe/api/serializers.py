@@ -10,13 +10,13 @@ class FamiliesSerializer(serializers.ModelSerializer):
 
 class PaidGuardsSerializer(serializers.ModelSerializer):
 
-    pguard_family_id = FamiliesSerializer(read_only=True)
+    family_id = FamiliesSerializer(read_only=True)
 
     class Meta:
         model = models.PaidGuards
         fields = [
             'pguard_id', 
-            'pguard_family_id', 
+            'family_id', 
             'pguard_name', 
             'pguard_phone', 
             'pguard_email', 
@@ -109,8 +109,8 @@ class SetGuardingListSerializer(serializers.ModelSerializer):
 
 class ExchangesSerializer(serializers.ModelSerializer):
 
-    origin_guard_id = FamiliesSerializer(read_only=True)
-    substitute_guard_id = FamiliesSerializer(read_only=True)
+    origin_guard_id = FguardSerializer(read_only=True)
+    substitute_guard_id = FguardSerializer(read_only=True)
     position_id = PositionSerializer(read_only=True)
 
     class Meta:
