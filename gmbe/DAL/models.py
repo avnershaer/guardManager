@@ -55,7 +55,7 @@ class PaidGuards(models.Model):
     pguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
 
     def __str__(self) -> str:
-        return (self.family_id.family_name + ' ' + self.pguard_name)
+        return (self.family_id.family_name + ' ' + self.pguard_name + str(self.pguard_id))
     
 
 class Position(models.Model):
@@ -103,7 +103,8 @@ class Exchanges(models.Model):
     exchange_hour = models.CharField(max_length=8 , default='')
     position_id = models.ForeignKey(Position, on_delete=models.CASCADE, related_name='Exchanges_position_id', default='')
     origin_guard_id = models.ForeignKey(Fguard, on_delete=models.CASCADE, related_name='Exchanges_origin_guard_id', default='')
-    substitute_guard_id = models.ForeignKey(Fguard, on_delete=models.CASCADE, related_name='Exchanges_substitute_guard_id', default='')
+    substitute_fguard_id = models.ForeignKey(Fguard, on_delete=models.CASCADE, related_name='Exchanges_substitute_guard_id', null=True, blank=True)
+    substitute_Pguard_id = models.ForeignKey(PaidGuards, on_delete=models.CASCADE, related_name='Exchanges_substitute_Pguard_id', null=True, blank=True)
     exchange_type = models.CharField(max_length=8 , default='')
     shift_id = models.ForeignKey(
         Shift, 

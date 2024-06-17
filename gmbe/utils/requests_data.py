@@ -59,36 +59,46 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
                     instance = 'fguard_id', 
                     entity_id = substitute_guard
                     )
+            substitute_pguard_instance = None
+
         elif ex_type == 'paid':
-            substitute_guard_instance = fetch_required_instances(
+            substitute_guard_id = dal.get_first_fguard_id_by_family_id(
+                    family_id=substitute_guard['family_id'], 
+                    )
+            if substitute_guard_id == None:
+                return None
+            substitute_pguard_instance = fetch_required_instances(
                     model=PaidGuards, 
                     instance = 'pguard_id', 
-                    entity_id = substitute_guard
+                    entity_id = substitute_guard_id
                     )
+            substitute_guard_instance = None
 
         return {
             'position_instance': position_instance, 
             'shift_instance': shift_instance, 
             'origin_guard_instance': origin_guard_instance, 
-            'substitute_guard_instance': substitute_guard_instance
+            'substitute_guard_instance': substitute_guard_instance,
+            'substitute_pguard_instance': substitute_pguard_instance,
         }
     except Exception as e:
         loggr.error((f'ERROR at requests_data.get_instances():{e}'))
         return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
     
 def exchange_data_dict(instances, list_date, list_day, shift_hour, ex_type):
-    loggr.info('///MOVE TO requests_data.exchange_data()')
+    loggr.info('///MOVE TO requests_data.exchange_data_dict()')
     try:
         exchange_data = {
                 'origin_guard_id': instances['origin_guard_instance'],
                 'shift_id': instances['shift_instance'],
-                'substitute_guard_id': instances['substitute_guard_instance'],
+                'substitute_fguard_id': instances['substitute_guard_instance'],
+                'substitute_Pguard_id': instances['substitute_pguard_instance'],
                 'position_id': instances['position_instance'],
                 'exchange_date': list_date,
                 'exchange_day': list_day,
                 'exchange_hour': shift_hour,
                 'exchange_type': ex_type,
-            }
+            }   
         return exchange_data
     except Exception as e:
         loggr.error((f'ERROR at requests_data.exchange_data_dict():{e}'))

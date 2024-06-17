@@ -171,12 +171,18 @@ class Dal(View):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
             shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
-            substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
+            if substitute_guard_id.pguard_id: #check if fguard or paid guard and get instance
+                substitute_guard = PaidGuards.objects.get(pguard_id=substitute_guard_id.pguard_id)
+            elif substitute_guard_id.fguard_id:
+                substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
             current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id.fguard_id).first()
             if current_guard:
                 shift_instance.fguard_id.remove(current_guard)
                 loggr.info(f"Removed current guard: {current_guard}")
-                shift_instance.fguard_id.add(substitute_guard)
+                if isinstance(substitute_guard, Fguard):
+                    shift_instance.fguard_id.add(substitute_guard)
+                elif isinstance(substitute_guard, PaidGuards):
+                    shift_instance.pguard_id.add(substitute_guard)
                 shift_instance.save()
                 loggr.info(f'OK SAVED NEW REPLACED GUARD')
                 if shift_instance:
@@ -205,7 +211,7 @@ class Dal(View):
     def get_first_fguard_id_by_family_id(self, family_id):
         loggr.info('///MOVE TO dviews.get_first_fguard_id_by_family_id()')
         try:
-            first_fguard = Fguard.objects.filter(family_id=family_id).order_by('fguard_id').first()
+            first_fguard = PaidGuards.objects.filter(family_id=family_id).order_by('pguard_id').first()
             if first_fguard:
                 return first_fguard.fguard_id
             else:

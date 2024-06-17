@@ -110,7 +110,8 @@ class SetGuardingListSerializer(serializers.ModelSerializer):
 class ExchangesSerializer(serializers.ModelSerializer):
 
     origin_guard_id = FguardSerializer(read_only=True)
-    substitute_guard_id = FguardSerializer(read_only=True)
+    substitute_fguard_id = FguardSerializer(read_only=True)
+    substitute_Pguard_id = PaidGuardsSerializer(read_only=True)
     position_id = PositionSerializer(read_only=True)
 
     class Meta:
@@ -122,7 +123,8 @@ class ExchangesSerializer(serializers.ModelSerializer):
             'exchange_hour', 
             'position_id',
             'origin_guard_id', 
-            'substitute_guard_id', 
+            'substitute_fguard_id', 
+            'substitute_Pguard_id', 
             'exchange_type'
             ]
         

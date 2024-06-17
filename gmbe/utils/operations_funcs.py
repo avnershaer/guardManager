@@ -101,13 +101,19 @@ def handle_exchange_guard(ex_type, ex_data, substitute_guard):
             if isinstance(request_data, JsonResponse):
                 return request_data
             
-            reg_exchange = dal.exchange_guard(
+            if ex_type == "paid":
+                exchange = dal.exchange_guard(
                 request_data['shift_id'], 
                 request_data['origin_guard_id'], 
-                request_data['substitute_guard_id']
+                request_data['substitute_Pguard_id']
+                )
+            exchange = dal.exchange_guard(
+                request_data['shift_id'], 
+                request_data['origin_guard_id'], 
+                request_data['substitute_fguard_id']
                 )
             
-            if reg_exchange:
+            if exchange:
                 loggr.info('OK_EXCHANGE')
                 from ..api.serislizers_views import api_create_new
                 write_exchange = api_create_new(Exchanges, ExchangesSerializer, request_data)
