@@ -105,12 +105,14 @@ def handle_exchange_guard(ex_type, ex_data, substitute_guard):
                 exchange = dal.exchange_guard(
                 request_data['shift_id'], 
                 request_data['origin_guard_id'], 
-                request_data['substitute_Pguard_id']
+                request_data['substitute_Pguard_id'],
+                ex_type
                 )
             exchange = dal.exchange_guard(
                 request_data['shift_id'], 
                 request_data['origin_guard_id'], 
-                request_data['substitute_fguard_id']
+                request_data['substitute_fguard_id'],
+                ex_type
                 )
             
             if exchange:

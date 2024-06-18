@@ -49,10 +49,17 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
         if ex_type == 'ordinary':
             substitute_guard_id = dal.get_first_fguard_id_by_family_id(
                     family_id=substitute_guard, 
+                    ex_type = ex_type
                     )
             if substitute_guard_id == None:
                 return None
-            substitute_guard = substitute_guard_id
+            substitute_guard_instance = fetch_required_instances(
+                    model=Fguard, 
+                    instance = 'fguard_id', 
+                    entity_id = substitute_guard_id
+                    )
+            substitute_pguard_instance = None
+
         elif ex_type == 'cross':
             substitute_guard_instance = fetch_required_instances(
                     model=Fguard, 
@@ -64,6 +71,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
         elif ex_type == 'paid':
             substitute_guard_id = dal.get_first_fguard_id_by_family_id(
                     family_id=substitute_guard['family_id'], 
+                    ex_type = ex_type
                     )
             if substitute_guard_id == None:
                 return None

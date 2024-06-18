@@ -167,13 +167,13 @@ class Dal(View):
         except Exception as e:
             return JsonResponse({'status':'ERROR dviews.Dal.get_future_lists()','Details':str(e)}, status=500, safe=False)
     
-    def exchange_guard(self, shift_id, guard_id, substitute_guard_id):
+    def exchange_guard(self, shift_id, guard_id, substitute_guard_id, ex_type):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
             shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
-            if substitute_guard_id.pguard_id: #check if fguard or paid guard and get instance
+            if ex_type == 'paid': #check if fguard or paid guard and get instance
                 substitute_guard = PaidGuards.objects.get(pguard_id=substitute_guard_id.pguard_id)
-            elif substitute_guard_id.fguard_id:
+            elif ex_type == 'ordinary' or ex_type == 'cross':
                 substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
             current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id.fguard_id).first()
             if current_guard:
@@ -208,13 +208,18 @@ class Dal(View):
             loggr.error(f"ERROR dviews.get_instance_by_entity_id(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
 
-    def get_first_fguard_id_by_family_id(self, family_id):
+    def get_first_fguard_id_by_family_id(self, family_id, ex_type):
         loggr.info('///MOVE TO dviews.get_first_fguard_id_by_family_id()')
         try:
-            first_fguard = PaidGuards.objects.filter(family_id=family_id).order_by('pguard_id').first()
-            if first_fguard:
-                return first_fguard.fguard_id
-            else:
+            if ex_type == 'ordinary' or ex_type == "cross":
+                first_fguard = Fguard.objects.filter(family_id=family_id).order_by('fguard_id').first()
+                if first_fguard:
+                    return first_fguard.fguard_id
+                return None
+            elif ex_type =="paid":
+                first_fguard = PaidGuards.objects.filter(family_id=family_id).order_by('pguard_id').first()
+                if first_fguard:
+                    return first_fguard.pguard_id
                 return None
         except Exception as e:
             loggr.error(f"ERROR dviews.get_first_fguard_id_by_family_id(): {str(e)}")

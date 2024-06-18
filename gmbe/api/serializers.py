@@ -59,12 +59,14 @@ class PositionSerializer(serializers.ModelSerializer):
 class ShiftSerializer(serializers.ModelSerializer):
 
     fguard_id = FguardSerializer(many=True, read_only=True)
-
+    pguard_id = PaidGuardsSerializer(many=True, read_only=True)
+    
     class Meta:
         model = models.Shift
         fields = [
             'shift_id', 
             'fguard_id', 
+            'pguard_id', 
             'position_id', 
             'shift_hour', 
             'shift_date', 
