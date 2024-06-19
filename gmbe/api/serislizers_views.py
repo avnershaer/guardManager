@@ -28,8 +28,11 @@ def api_create_new(model, model_serializer, data):
             return serialized_details
         return serialized_details.data
     except Exception as e:
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_create_new()','details:':str(e)}, status=500, safe=False)
-
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_create_new()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 
 def api_get_list(instance_model, model_serializer):
@@ -49,7 +52,11 @@ def api_get_list(instance_model, model_serializer):
         return serialized_lists
     except Exception as e:
        loggr.error(f'ERROR AT serializers_views.api_get_list():{e}')
-       raise e 
+       return JsonResponse(
+           {'status:':'ERROR AT serializers_views.api_get_list()','details:':str(e)}, 
+           status=500, 
+           safe=False
+           )
 
 def api_get_glist_by_id(glist_id):
     loggr.info('///MOVE TO serializers_views.api_get_glist_by_id()')
@@ -68,7 +75,35 @@ def api_get_glist_by_id(glist_id):
         return serialized_lists
     except Exception as e:
        loggr.error(f'ERROR AT serializers_views.api_get_glist_by_id():{e}')
-       raise e 
+       return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_glist_by_id()'}, 
+            status=500, 
+            safe=False
+            )
+         
+
+def api_get_instances_by_parm(model, instance, parm, model_serializer):
+    loggr.info('///MOVE TO serializers_views.api_get_instance_by_parm()')
+    try:
+        instances_by_parm = dal.get_instance_by_parm(model, instance, parm)
+        if isinstance(instances_by_parm, JsonResponse):
+            return instances_by_parm
+        elif instances_by_parm == None:
+            return None
+        serialized_lists =serialize_data(
+            model_serializer=model_serializer, 
+            instance_model=model, 
+            objects=instances_by_parm, 
+            many=True
+            ).data
+        return serialized_lists
+    except Exception as e:
+        loggr.error(f'ERROR AT serializers_views.api_get_instance_by_parm():{e}')
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_instances_by_parm()'}, 
+            status=500, 
+            safe=False
+            )
         
  
 # get guarding lists in range of dates
@@ -88,9 +123,12 @@ def api_get_lists_by_dates(model, model_serializer, date1, date2):
             ).data
         return serialized_lists
     except Exception as e:
-       loggr.error(f'ERROR AT serializers_views.get_lists_by_dates():{e}')
-       raise e        
-
+        loggr.error(f'ERROR AT serializers_views.get_lists_by_dates():{e}')
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_lists_by_dates()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 def api_instance_by_date(model, model_serializer, obj_date, date):
     loggr.info('///MOVE TO serializers_views.api_instance_by_date()')
@@ -110,7 +148,11 @@ def api_instance_by_date(model, model_serializer, obj_date, date):
         return serialized_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_instance_by_date():{e}')
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_instance_by_date()','details:':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_instance_by_date()','details:':str(e)},
+            status=500, 
+            safe=False
+            )
 
 def api_get_instance_by_date_position(date, position):
     loggr.info('///MOVE TO serializers_views.api_get_instance_by_date_position()')
@@ -130,7 +172,11 @@ def api_get_instance_by_date_position(date, position):
         return serialized_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_instance_by_date_position():{e}')
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_instance_by_date_position()','details:':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_instance_by_date_position()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 def api_get_last_id():
     loggr.info('///MOVE TO serializers_views.api_get_last_id()')
@@ -143,7 +189,11 @@ def api_get_last_id():
         return last_id
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_last_id():{e}')
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_last_id()','details:':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_last_id()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 def api_get_instance_by_entity_id(model, instance, entity_id):
     loggr.info('///MOVE TO serializers_views.api_get_instance_by_entity_id()')
@@ -154,7 +204,11 @@ def api_get_instance_by_entity_id(model, instance, entity_id):
         return fetched_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_instance_by_entity_id():{e}')
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_instance_by_entity_id()','details:':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_instance_by_entity_id()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 def api_get_futu_lists():
     loggr.info('///MOVE TO serializers_views.api_get_futu_lists()')
@@ -174,4 +228,8 @@ def api_get_futu_lists():
         return serialized_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_futu_lists():{e}')
-        return JsonResponse({'status:':'ERROR AT serializers_views.api_get_futu_lists()','details:':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status:':'ERROR AT serializers_views.api_get_futu_lists()','details:':str(e)}, 
+            status=500, 
+            safe=False
+            )

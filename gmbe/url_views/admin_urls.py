@@ -60,7 +60,19 @@ def paid_guards_list(request):
         paid_guards_list=admin_facade.get_paid_guards_list(request)
         return JsonResponse({'details':paid_guards_list}, status=200, safe=False)
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.paid_guards_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse({'status': 'ERROR at admin_urls.paid_guards_list()','details':str(e)}, status=500, safe=False)
+
+@csrf_exempt    
+@api_view(['GET'])
+def get_all_exchanges(request):
+    loggr.info(f'{request} request recived - admin_urls.get_all_exchanges()')
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405)  
+    try:
+        all_exchanges = admin_facade.get_all_exchanges(request)
+        return JsonResponse({'details':all_exchanges}, status=200, safe=False)
+    except Exception as e:
+        return JsonResponse({'status': 'ERROR at admin_urls.get_all_exchanges()','details':str(e)}, status=500, safe=False)
     
 @csrf_exempt
 @api_view(['GET'])
@@ -72,7 +84,7 @@ def shifts_list(request):
         shifts_list = admin_facade.get_shifts_list(request)
         return JsonResponse({'status':'success', 'Details':shifts_list})
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.shifts_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse({'status': 'ERROR at admin_urls.shifts_list()','details':str(e)}, status=500, safe=False)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -83,10 +95,18 @@ def create_guard_list(request):
     try:
         guard_list = admin_facade.create_guard_list(request)
         loggr.info('got guard_list at admin_urls.create_guard_list()')
-        return JsonResponse({'status':'success', 'Details': guard_list}, status=200, safe=False)
+        return JsonResponse(
+            {'status':'success', 'Details': 
+             guard_list}, 
+             status=200, 
+             safe=False)
     
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.create_guard_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at url_views.admin_urls.create_guard_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['POST'])
@@ -111,11 +131,23 @@ def exchange_guard(request):
         ex_type = 'ordinary'
         exchange_result = admin_facade.reg_exchange_guard(request, ex_type)
         if exchange_result == None:
-            return JsonResponse({'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, status=200, safe=False)
+            return JsonResponse(
+                {'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, 
+                status=200, 
+                safe=False
+                )
         loggr.info(f'OK exchange_guard')
-        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
+        return JsonResponse(
+            {'status':'success', 'Details': exchange_result}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status':'ERROR', 'Details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['PUT'])
@@ -127,11 +159,23 @@ def paid_exchange_guard(request):
         ex_type = 'paid'
         exchange_result = admin_facade.paid_exchange_guard(request, ex_type)
         if exchange_result == None:
-            return JsonResponse({'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, status=200, safe=False)
+            return JsonResponse(
+                {'status':'OK for exchange BUT DID NOT write the exchange', 'Details':exchange_result}, 
+                status=200, 
+                safe=False
+                )
         loggr.info(f'OK exchange_guard')
-        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
+        return JsonResponse(
+            {'status':'success', 'Details': exchange_result}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status':'ERROR', 'Details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['PUT'])
@@ -143,10 +187,39 @@ def cross_exchange_guards(request):
         ex_type = 'cross'
         exchange_result = admin_facade.cross_exchange_guard(request, ex_type)
         loggr.info(f'OK cross exchange_guards')
-        return JsonResponse({'status':'success', 'Details': exchange_result}, status=200, safe=False)
+        return JsonResponse(
+            {'status':'success', 'Details': exchange_result}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse(
+            {'status':'ERROR', 'Details':str(e)}, 
+            status=500, 
+            safe=False
+            )
+
+@csrf_exempt
+@api_view(['GET'])
+def get_exchange_report_by_type(request, ex_type):
+    loggr.info(f'{request} request recived - admin_urls.get_exchange_report_by_type()')
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405, safe=False)  
+    try:
+        exchange_report_by_type = admin_facade.get_exchange_list_by_type(ex_type)
+        if exchange_report_by_type == None:
+            return JsonResponse(
+                {'status':'none', 'details':"אין דוחות להצגה"}, 
+                status=404, 
+                safe=False
+                )
+        loggr.info('OK get_exchange_report_by_type')
+        return JsonResponse(
+            {'status':'success', 'details':exchange_report_by_type}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
-
-
 
 

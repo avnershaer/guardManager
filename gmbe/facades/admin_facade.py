@@ -1,7 +1,7 @@
 from ..api.serislizers_views import api_get_list
 from ..dal.models import *
 from ..api.serializers import *
-from ..api.serislizers_views import api_instance_by_date, api_create_new
+from ..api.serislizers_views import api_get_instances_by_parm, api_create_new
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
@@ -52,7 +52,15 @@ class AdminFacade():#(AnonymousFacade)
             paid_guards_list = api_get_list(instance_model=PaidGuards, model_serializer=PaidGuardsSerializer)
             return paid_guards_list
         except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
+            return JsonResponse({'status':'ERROR at AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
+        
+    def get_all_exchanges(self, request):
+        loggr.info('///MOVE TO admin_facade.get_all_exchanges()')
+        try:
+            exchanges_list = api_get_list(instance_model=Exchanges, model_serializer=ExchangesSerializer)
+            return exchanges_list
+        except Exception as e:
+            return JsonResponse({'status':'ERROR at AdminFacade.get_all_exchanges()','details':str(e)}, status=500, safe=False)
         
     def get_shifts_list(self, request):
         loggr.info('///MOVE TO admin_facade.get_shifts_list()')
@@ -179,5 +187,24 @@ class AdminFacade():#(AnonymousFacade)
             loggr.error((f'ERROR at admin_facade.reg_exchange_guard:{e}'))
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
 
-
+    def get_exchange_list_by_type(self, ex_type):
+          loggr.info('///MOVE TO common_facade.get_glist_by_id()')
+          try:
+              exchange_list_by_type = api_get_instances_by_parm(
+                  model = Exchanges, 
+                  instance = 'exchange_type', 
+                  parm = ex_type,
+                  model_serializer = ExchangesSerializer
+                  )
+              if exchange_list_by_type == None:
+                      loggr.info(f'Exchange List By Type == NONE')
+                      return None
+              return exchange_list_by_type
+          except Exception as e:
+              loggr.error(f'ERROR AT common_facade.get_glist_by_id():{e}') 
+              return JsonResponse(
+                  {'status':'ERROR AT common_facade.get_exchange_list_by_type()','details':str(e)}, 
+                  status=500, 
+                  safe=False
+                  )
     

@@ -143,6 +143,17 @@ class Dal(View):
         except Exception as e:
             loggr.error(f'ERROR at dviews.get_shifts_by_date_pos(): FAILD TO GET SHIFTS:{e}')
             return JsonResponse({'status': 'error', 'details':'dviews.get_shifts_by_date_pos()-faild to get shifts'}) 
+    
+    def get_instance_by_parm(self, model, instance, parm):
+        loggr.info('///MOVE TO dviews.get_shifts_by_date_pos()')
+        try:
+            kwargs = {instance: parm}
+            query_instance = model.objects.filter(**kwargs)
+            loggr.info(f'instance_by_parm:{query_instance}')
+            return query_instance
+        except Exception as e:
+            loggr.error(f'ERROR at dviews.get_shifts_by_date_pos(): FAILD TO GET SHIFTS:{e}')
+            return JsonResponse({'status': 'error', 'details':'dviews.get_shifts_by_date_pos()-faild to get shifts'}) 
 
     # get the last id for creating new guard list
     def get_last_id(self):
