@@ -15,15 +15,20 @@ errlogger = err_logger()
 def families_list(request):
     loggr.info(f'{request} request recived - admin_urls.families_list()')
     if request.method != 'GET':
-        return JsonResponse({'error': 'GET requests only!'}, status=405)  # Return a 405 Method Not Allowed error
+        return JsonResponse({'error': 'GET requests only!'}, status=405)
     try:
-        # get list of all families  
         families_list = admin_facade.get_all_families(request)
-        # successful response with the list 
-        return JsonResponse({'Details': families_list}, status=200, safe=False)
-    # handle any exceptions that occur while fetching the list
+        return JsonResponse(
+            {'Details': families_list}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt  
 @api_view(['GET'])
@@ -33,9 +38,36 @@ def users_list(request):
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         users_list = admin_facade.get_all_users(request)
-        return JsonResponse({'details:':users_list}, status=200, safe=False)
+        return JsonResponse(
+            {'details:':users_list}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, 
+            status=500, 
+            safe=False)
+
+@csrf_exempt  
+@api_view(['GET'])
+def fguards_list(request):
+    loggr.info(f'{request} request recived - admin_urls.fguards_list()')
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405)  
+    try:
+        fguards_list = admin_facade.get_all_fguards(request)
+        return JsonResponse(
+            {'details':fguards_list}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse(
+            {'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt    
 @api_view(['GET'])
@@ -45,9 +77,17 @@ def positions_list(request):
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         positions_list=admin_facade.get_Positions_list(request)
-        return JsonResponse({'details':positions_list}, status=200, safe=False)
+        return JsonResponse(
+            {'details':positions_list}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
     
 
 @csrf_exempt    
@@ -58,9 +98,17 @@ def paid_guards_list(request):
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         paid_guards_list=admin_facade.get_paid_guards_list(request)
-        return JsonResponse({'details':paid_guards_list}, status=200, safe=False)
+        return JsonResponse(
+            {'details':paid_guards_list}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at admin_urls.paid_guards_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at admin_urls.paid_guards_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt    
 @api_view(['GET'])
@@ -70,9 +118,17 @@ def get_all_exchanges(request):
         return JsonResponse({'error': 'GET requests only!'}, status=405)  
     try:
         all_exchanges = admin_facade.get_all_exchanges(request)
-        return JsonResponse({'details':all_exchanges}, status=200, safe=False)
+        return JsonResponse(
+            {'details':all_exchanges}, 
+            status=200, 
+            safe=False
+            )
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at admin_urls.get_all_exchanges()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at admin_urls.get_all_exchanges()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
     
 @csrf_exempt
 @api_view(['GET'])
@@ -84,7 +140,11 @@ def shifts_list(request):
         shifts_list = admin_facade.get_shifts_list(request)
         return JsonResponse({'status':'success', 'Details':shifts_list})
     except Exception as e:
-        return JsonResponse({'status': 'ERROR at admin_urls.shifts_list()','details':str(e)}, status=500, safe=False)
+        return JsonResponse(
+            {'status': 'ERROR at admin_urls.shifts_list()','details':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['POST'])

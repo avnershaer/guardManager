@@ -6,8 +6,7 @@ from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
-from ..utils.operations_funcs import get_last_id, handle_exchange_guard, serialize_data
-from ..utils.requests_data import exchange_request_data
+from ..utils.operations_funcs import get_last_id, handle_exchange_guard
 
 
 dal = Dal()
@@ -15,44 +14,86 @@ loggr = logger()
 errlogger = err_logger()
 
 
-class AdminFacade():#(AnonymousFacade)
+class AdminFacade():
     
     def get_all_families(self, request): #(request for @require_role)
         loggr.info('///MOVE TO admin_facade.get_all_families()')
         try:
-            # get list of all families
-            families_list = api_get_list(instance_model=Families, model_serializer = FamiliesSerializer)
+            families_list = api_get_list(
+                instance_model=Families, 
+                model_serializer = FamiliesSerializer
+                )
             loggr.info(f'families_list:{families_list}')
-            # success reponse with list of families.  
             return families_list
-        # handle any exceptions that occur during getting the list 
         except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_families','details':str(e)}, status=500, safe=False)
+            return JsonResponse(
+                {'status':'ERROR at admin_facade.get_all_families','details':str(e)}, 
+                status=500, 
+                safe=False
+                )
+            
+    def get_all_fguards(self, request):
+        loggr.info('///MOVE TO admin_facade.get_all_fguards()')
+        try:
+            fguards_list = api_get_list(
+                instance_model=Fguard, 
+                model_serializer = FguardSerializer
+                )
+            loggr.info(f'families_list:{fguards_list}')
+            return fguards_list
+        except Exception as e:
+            return JsonResponse(
+                {'status':'ERROR at admin_facade.get_all_fguards','details':str(e)}, 
+                status=500, 
+                safe=False
+                )
             
     def get_all_users(self, request):
         loggr.info('///MOVE TO admin_facade.get_all_users()')
         try:
-            users_list = api_get_list(instance_model=User, model_serializer=UserSerializer)
+            users_list = api_get_list(
+                instance_model=User, 
+                model_serializer=UserSerializer
+                )
             return users_list
         except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_all_users()','details':str(e)}, status=500, safe=False)
+            return JsonResponse(
+                {'status':'ERROR at admin_facade.AdminFacade.get_all_users()','details':str(e)}, 
+                status=500, 
+                safe=False
+                )
         
     def get_Positions_list(self, request):
         loggr.info('///MOVE TO admin_facade.get_Positions_list()')
         try:
-            positions_list = api_get_list(instance_model=Position, model_serializer=PositionSerializer)
+            positions_list = api_get_list(
+                instance_model=Position, 
+                model_serializer=PositionSerializer
+                )
             return positions_list
         except Exception as e:
-            return JsonResponse({'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
+            return JsonResponse(
+                {'status':'ERROR at admin_facade.AdminFacade.get_positions_list()','details':str(e)}, 
+                status=500, 
+                safe=False
+                )
         
     
     def get_paid_guards_list(self, request):
         loggr.info('///MOVE TO admin_facade.get_Positions_list()')
         try:
-            paid_guards_list = api_get_list(instance_model=PaidGuards, model_serializer=PaidGuardsSerializer)
+            paid_guards_list = api_get_list(
+                instance_model=PaidGuards, 
+                model_serializer=PaidGuardsSerializer
+                )
             return paid_guards_list
         except Exception as e:
-            return JsonResponse({'status':'ERROR at AdminFacade.get_positions_list()','details':str(e)}, status=500, safe=False)
+            return JsonResponse(
+                {'status':'ERROR at AdminFacade.get_positions_list()','details':str(e)}, 
+                status=500, 
+                safe=
+                False
+                )
         
     def get_all_exchanges(self, request):
         loggr.info('///MOVE TO admin_facade.get_all_exchanges()')
