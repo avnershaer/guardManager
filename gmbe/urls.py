@@ -24,5 +24,6 @@ urlpatterns = [
     path('cross_exchange_guards', admin_urls.cross_exchange_guards, name='cross_exchange_guards'),
     path('get_all_exchanges', admin_urls.get_all_exchanges, name='get_all_exchanges'),
     path('exchange_report_by_type/<str:ex_type>', admin_urls.get_exchange_report_by_type, name='exchange_report_by_type'),
+    path('create_position', admin_urls.create_position, name='create_position'),
 
 ]

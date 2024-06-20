@@ -222,4 +222,21 @@ def get_exchange_report_by_type(request, ex_type):
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
 
-
+@csrf_exempt
+@api_view(['POST'])
+def create_position(request):
+    loggr.info(f'{request} request recived - admin_urls.create_position()')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST requests only!'}, status=405)  
+    try:
+        new_position = admin_facade.create_position(request)
+        if isinstance(new_position, JsonResponse):
+                return new_position
+        loggr.info(f'O.K CREATE POSITION')
+        return JsonResponse(
+            {'status':'success', 'details':new_position}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})

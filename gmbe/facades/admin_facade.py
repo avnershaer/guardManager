@@ -188,7 +188,7 @@ class AdminFacade():#(AnonymousFacade)
             return JsonResponse({'status':'error', 'details':e}, status=500, safe=False)
 
     def get_exchange_list_by_type(self, ex_type):
-          loggr.info('///MOVE TO common_facade.get_glist_by_id()')
+          loggr.info('///MOVE TO admin_facade.get_exchange_list_by_type()')
           try:
               exchange_list_by_type = api_get_instances_by_parm(
                   model = Exchanges, 
@@ -201,10 +201,30 @@ class AdminFacade():#(AnonymousFacade)
                       return None
               return exchange_list_by_type
           except Exception as e:
-              loggr.error(f'ERROR AT common_facade.get_glist_by_id():{e}') 
+              loggr.error(f'ERROR AT admin_facade.get_exchange_list_by_type():{e}') 
               return JsonResponse(
-                  {'status':'ERROR AT common_facade.get_exchange_list_by_type()','details':str(e)}, 
+                  {'status':'ERROR AT admin_facade.get_exchange_list_by_type()','details':str(e)}, 
                   status=500, 
                   safe=False
                   )
     
+    def create_position(self, request):
+        loggr.info('///MOVE TO admin_facade.create_position()')
+        try:
+            position_name = request.data.get('positionName')
+            data = {'position_name': position_name}
+            new_position = api_create_new(
+                model = Position,
+                model_serializer = PositionSerializer, 
+                data = data
+            )
+            if isinstance(new_position, JsonResponse):
+                return new_position
+            return new_position
+        except Exception as e:
+              loggr.error(f'ERROR AT admin_facade.create_position():{e}') 
+              return JsonResponse(
+                  {'status':'ERROR AT admin_facade.create_position()','details':str(e)}, 
+                  status=500, 
+                  safe=False
+                  )
