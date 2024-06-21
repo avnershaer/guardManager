@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-#import json
 
 
 class UserRole(models.Model):
@@ -15,6 +14,7 @@ class UserRole(models.Model):
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_role = models.ForeignKey(UserRole, on_delete=models.CASCADE, related_name='Custom_user_role', default='')
+    remark = models.CharField(max_length=150, blank=True, default='')
 
 
 class Families(models.Model):

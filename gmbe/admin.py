@@ -20,10 +20,13 @@ class UserRoleInLine(admin.StackedInline):
     model = CustomUser
     can_delete = False
     verbose_name_plural = 'UserRole'
+    fields = ('user_role', 'remark')
 
 
 class CustomizedUserAdmin(UserAdmin):
     inlines = (UserRoleInLine,)
+
+
 
 admin.site.unregister(User)
 admin.site.register(User, CustomizedUserAdmin)

@@ -6,6 +6,7 @@ from datetime import timedelta
 from django.http import JsonResponse
 from datetime import datetime
 from django.db.models import Max
+from django.db.models import Q
 
 
 loggr = logger()
@@ -23,7 +24,7 @@ class Dal(View):
             table_list = model.objects.all()
             if table_list:
                 return table_list
-            return None  
+            return None
         except Exception as e:
             return JsonResponse({'status':'error', 'details':str(e)}, status=500, safe=False)
 
@@ -89,7 +90,10 @@ class Dal(View):
         loggr.info(f'*******starting_id: {starting_id}')
         try:
             id_list = []
-            queryset = model.objects.all()
+            if hasattr(model, 'user') and hasattr(User, 'is_active'):
+                queryset = model.objects.filter(Q(user__is_active=True) | Q(user__isnull=True))
+            else:
+                queryset = model.objects.all()
             loggr.info(f'*******queryset: {queryset}')
             second_queryset = queryset[starting_id-1:]
             loggr.info(f'*******second_queryset: {second_queryset}')

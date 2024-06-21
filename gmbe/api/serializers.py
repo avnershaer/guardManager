@@ -1,11 +1,39 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from ..dal import models
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UserRole
+        fields = '__all__'
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    
+    user_role = UserRoleSerializer(read_only=True)
+
+    class Meta:
+        model = models.CustomUser
+        fields = ['user_role', 'remark']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    custom_user = CustomUserSerializer(source='customuser', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'is_active', 'custom_user']
+
 
 class FamiliesSerializer(serializers.ModelSerializer):
 
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = models.Families
-        fields = '__all__'
+        fields = ['family_id', 'family_name', 'user']
 
 
 class PaidGuardsSerializer(serializers.ModelSerializer):
