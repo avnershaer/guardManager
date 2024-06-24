@@ -1,10 +1,12 @@
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from ..facades.admin_facade import AdminFacade
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from rest_framework import status
 from ..api.serializers import SetGuardingListSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 admin_facade = AdminFacade()
 loggr = logger()
@@ -295,6 +297,33 @@ def create_position(request):
         loggr.info(f'O.K CREATE POSITION')
         return JsonResponse(
             {'status':'success', 'details':new_position}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+
+@csrf_exempt
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def update_fguard(request):
+    loggr.info(f'{request} request recived - admin_urls.update_fguard()')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST requests only!'}, status=405)  
+    try:
+        fguard_pic = request.FILES.get('fguard_pic')
+        loggr.info(f'Uploaded file: {fguard_pic}')
+        updated_fguard = admin_facade.update_fguard(request)
+        if isinstance(updated_fguard, JsonResponse):
+                return updated_fguard
+        elif updated_fguard == None:
+            return JsonResponse(
+                {'error': 'ERROR UPDATING GUARD - GOT NONE'}, 
+                status=500
+                )
+        loggr.info(f'O.K UPDATED GUARD')
+        return JsonResponse(
+            {'status':'success', 'details':updated_fguard}, 
             status=200, 
             safe=False
             )

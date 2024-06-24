@@ -131,3 +131,26 @@ def exchange_request_data(ex_type, ex_data, substitute_guard):
     except Exception as e:
         return JsonResponse({'status':'error', 'details':e}, status=500, save=False)
 
+def fguard_data(request):
+    loggr.info('///MOVE TO requests_data.fguard_data()')
+    try:
+        fguard_name = request.data.get('fguard_name')
+        fguard_phone = request.data.get('fguard_phone')
+        fguard_email = request.data.get('fguard_email')
+        fguard_id = request.data.get('fguard_id')
+        armed = request.data.get('armed')
+        cap_armed = armed.capitalize()
+        fguard_pic = request.FILES.get('fguard_pic')
+
+        data_for_update = {
+            'fguard_id': fguard_id,
+            'fguard_name': fguard_name,
+            'fguard_phone': fguard_phone,
+            'fguard_email': fguard_email,
+            'armed': cap_armed
+        }
+        data_for_update['fguard_pic'] = fguard_pic
+        return data_for_update
+    except Exception as e:
+        loggr.error(f'error at requests_data.fguard_data(): {str(e)}')  
+        return JsonResponse({'status': 'error', 'details': str(e)}, status=500)

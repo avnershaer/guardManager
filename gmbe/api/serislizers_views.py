@@ -200,7 +200,14 @@ def api_get_instance_by_entity_id(model, instance, entity_id):
     try:
         fetched_instance = dal.get_instance_by_entity_id(model, instance, entity_id)
         if fetched_instance == None:
-            return None
+            return JsonResponse(
+            {
+                'status:':'ERROR AT serializers_views.api_get_instance_by_entity_id()',
+                'details:':'got None for instance'
+                }, 
+            status=500, 
+            safe=False
+            )
         return fetched_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_instance_by_entity_id():{e}')
@@ -233,3 +240,26 @@ def api_get_futu_lists():
             status=500, 
             safe=False
             )
+
+def api_update_instance(validated_data, id, instance_model, model_serializer):
+    loggr.info('///MOVE TO serializers_views.api_update_instance()')
+    try:
+        updated_obj = dal.update(id=id, **validated_data, model=instance_model)
+        if isinstance(updated_obj, JsonResponse):
+            return updated_obj
+        elif updated_obj == None:
+            return None
+        details = serialize_data(
+            model_serializer=model_serializer, 
+            instance_model=instance_model,
+            objects=updated_obj, 
+            many=False
+            ).data
+        return details 
+    except Exception as e:
+            loggr.error(f'ERROR AT serializers_views.api_update_instance():{e}')
+            return JsonResponse(
+                {'status:':'ERROR AT serializers_views.api_update_instance()','details:':str(e)}, 
+                status=500, 
+                safe=False
+                )

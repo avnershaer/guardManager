@@ -64,7 +64,7 @@ class Dal(View):
             return JsonResponse({'status':'error', 'details':str(e)})
     
     def get_field_name_by_id(self, model, field_name, idd):
-        loggr.info('///MOVE TO  dviews. get_instance_by_date()')
+        loggr.info('///MOVE TO dviews.get_field_name_by_id()')
         try:
             filter_args = {field_name: idd}
             instances = model.objects.filter(**filter_args)
@@ -239,18 +239,30 @@ class Dal(View):
         except Exception as e:
             loggr.error(f"ERROR dviews.get_first_fguard_id_by_family_id(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
-    #def get_shift_ids_by_date(self, shift_date):
-    #    loggr.info('got to dal.get_shift_ids_by_date()')
-    #    try:
-    #        shift_details_list = ShiftDetails.objects.filter(shift_date=shift_date)
-    #        loggr.info(f'shift_details_list:{shift_details_list}')
-    #        shift_ids = []
-    #        for shift_details in shift_details_list:
-    #            shifts = Shift.objects.filter(shift_details_id=shift_details)
-    #            shift_ids.extend(shift.id for shift in shifts)
-    #        loggr.info(f'shift_ids:{shift_ids}')
-    #        return shift_ids
-    #    except Exception as e:
-    #        loggr.error(f'ERROR: FAILED TO GET SHIFT IDS: {e}')
-    #        return []
-
+    
+    def update(self, model, id, **kwargs):
+        loggr.info('///MOVE TO dviews.update()')
+        try:
+            # Retrieve the instance
+            instance = model.objects.get(pk=id)
+    
+            # Update the attributes on the instance
+            for attr, value in kwargs.items():
+                if attr == 'remove_pic' and value:
+                    # Remove the picture
+                    instance.fguard_pic.delete(save=False)
+                    instance.fguard_pic = None  # or instance.fguard_pic = '' if you prefer
+                else:
+                    setattr(instance, attr, value)
+    
+            # Save the instance to trigger any save methods and signals
+            instance.save()
+    
+            loggr.info(f'OK GOT updated instance')
+            return instance
+        except model.DoesNotExist:
+            loggr.error(f'ERROR dviews.update(): Instance with id {id} not found')
+            return JsonResponse({'status': 'ERROR', 'Details': f'Instance with id {id} not found'}, status=404)
+        except Exception as e:
+            loggr.error(f"ERROR dviews.update()(): {str(e)}")
+            return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)

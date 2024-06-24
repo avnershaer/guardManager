@@ -1,13 +1,13 @@
 from ..api.serislizers_views import api_get_list
 from ..dal.models import *
 from ..api.serializers import *
-from ..api.serislizers_views import api_get_instances_by_parm, api_create_new
+from ..api.serislizers_views import api_get_instances_by_parm, api_create_new, api_update_instance, api_get_instance_by_entity_id
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
 from ..utils.operations_funcs import get_last_id, handle_exchange_guard
-
+from ..utils.requests_data import fguard_data
 
 dal = Dal()
 loggr = logger()
@@ -78,7 +78,6 @@ class AdminFacade():
                 safe=False
                 )
         
-    
     def get_paid_guards_list(self, request):
         loggr.info('///MOVE TO admin_facade.get_Positions_list()')
         try:
@@ -269,3 +268,35 @@ class AdminFacade():
                   status=500, 
                   safe=False
                   )
+        
+    def update_fguard(self, request):
+        loggr.info(f'///MOVE TO admin_facade.update_fguard() request:{request.FILES}')
+        try:
+            data = fguard_data(request)
+            id = data['fguard_id']
+            updated_fguard = api_update_instance(
+                validated_data=data, 
+                id=id, 
+                instance_model=Fguard, 
+                model_serializer=FguardSerializer,
+                )
+            return updated_fguard
+        except Exception as e:
+          loggr.error(f'ERROR AT admin_facade.update_fguard():{e}') 
+          return JsonResponse(
+              {'status':'ERROR AT admin_facade.update_fguard()','details':str(e)}, 
+              status=500, 
+              safe=False
+              )
+        
+    def get_fguard_by_fguard_id(self, fguard_id):
+        loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
+        #try:
+        #    fguard = api_get_instance_by_entity_id(
+        #        Fguard,
+        #        'fguard_id',
+        #        fguard_id
+        #    )
+        #    if isinstance(fguard, JsonResponse):
+        #        return fguard
+             
