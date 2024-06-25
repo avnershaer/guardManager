@@ -1,7 +1,7 @@
 from ..api.serislizers_views import api_get_list
 from ..dal.models import *
 from ..api.serializers import *
-from ..api.serislizers_views import api_get_instances_by_parm, api_create_new, api_update_instance, api_get_instance_by_entity_id
+from ..api.serislizers_views import api_get_instances_by_parm, api_create_new, api_update_instance, api_get_fields_by_id
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
@@ -289,14 +289,44 @@ class AdminFacade():
               safe=False
               )
         
-    def get_fguard_by_fguard_id(self, fguard_id):
+    def get_shifts_for_fguard(self, request, fguard_id):
         loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
-        #try:
-        #    fguard = api_get_instance_by_entity_id(
-        #        Fguard,
-        #        'fguard_id',
-        #        fguard_id
-        #    )
-        #    if isinstance(fguard, JsonResponse):
-        #        return fguard
-             
+        try:
+            fguard = api_get_fields_by_id(
+                Shift,
+                ShiftSerializer,
+                'fguard_id',
+                fguard_id
+            )
+            return fguard
+        except Exception as e:
+            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            raise e
+    
+    def get_exchanges_for_fguard(self, request, fguard_id):
+        loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
+        try:
+            fguard = api_get_instances_by_parm(
+                Exchanges,
+                'origin_guard_id',
+                fguard_id,
+                ExchangesSerializer,
+            )
+            return fguard
+        except Exception as e:
+            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            raise e
+    
+    def get_did_exchanges_for_fguard(self, request, fguard_id):
+        loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
+        try:
+            fguard = api_get_instances_by_parm(
+                Exchanges,
+                'substitute_fguard_id',
+                fguard_id,
+                ExchangesSerializer,
+            )
+            return fguard
+        except Exception as e:
+            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            raise e

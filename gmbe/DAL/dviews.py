@@ -243,21 +243,17 @@ class Dal(View):
     def update(self, model, id, **kwargs):
         loggr.info('///MOVE TO dviews.update()')
         try:
-            # Retrieve the instance
             instance = model.objects.get(pk=id)
-    
-            # Update the attributes on the instance
+            # update the attributes on the instance
             for attr, value in kwargs.items():
                 if attr == 'remove_pic' and value:
-                    # Remove the picture
+                    # remove picture
                     instance.fguard_pic.delete(save=False)
-                    instance.fguard_pic = None  # or instance.fguard_pic = '' if you prefer
+                    instance.fguard_pic = None 
                 else:
                     setattr(instance, attr, value)
-    
-            # Save the instance to trigger any save methods and signals
+            # save the instance - trigger any save methods and signals
             instance.save()
-    
             loggr.info(f'OK GOT updated instance')
             return instance
         except model.DoesNotExist:

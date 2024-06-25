@@ -329,3 +329,61 @@ def update_fguard(request):
             )
     except Exception as e:
         return JsonResponse({'status':'ERROR', 'Details':str(e)})
+    
+@csrf_exempt
+@api_view(['GET'])
+def get_fguard_shifts(request, fguard_id):
+    loggr.info(f'{request} request recived - admin_urls.get_fguard_shifts()')
+    try:
+        fguard = admin_facade.get_shifts_for_fguard(request, fguard_id)
+        if fguard:
+            return JsonResponse(
+            {'status':'success', 'details':fguard}, 
+            status=200, 
+            safe=False
+            )
+        return JsonResponse(
+                {'error': 'ERROR GETTING FGUARD BY ID'}, 
+                status=500
+                )
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+
+@csrf_exempt
+@api_view(['GET'])
+def get_exchanges_for_fguard(request, fguard_id):
+    loggr.info(f'{request} request recived - admin_urls.get_fguard_by_id()')
+    try:
+        fguard = admin_facade.get_exchanges_for_fguard(request, fguard_id)
+        if fguard:
+            return JsonResponse(
+            {'status':'success', 'details':fguard}, 
+            status=200, 
+            safe=False
+            )
+        return JsonResponse(
+                {'error': 'ERROR GETTING FGUARD EXCHAGES'}, 
+                status=500
+                )
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+
+@csrf_exempt
+@api_view(['GET'])
+def get_did_exchanges_for_fguard(request, fguard_id):
+    loggr.info(f'{request} request recived - admin_urls.get_fguard_by_id()')
+    try:
+        fguard = admin_facade.get_did_exchanges_for_fguard(request, fguard_id)
+        if fguard:
+            return JsonResponse(
+            {'status':'success', 'details':fguard}, 
+            status=200, 
+            safe=False
+            )
+        return JsonResponse(
+                {'error': 'ERROR GETTING FGUARD EXCHAGES'}, 
+                status=500
+                )
+    except Exception as e:
+        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+    

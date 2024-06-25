@@ -37,7 +37,7 @@ class Fguard(models.Model):
     fguard_pic = models.ImageField(upload_to='families_pics', default='', blank=True, null=True) 
 
     def __str__(self) -> str:
-        return (self.family_id.family_name + ' ' + self.fguard_name) 
+        return (self.family_id.family_name + ' ' + self.fguard_name + ' ' + str(self.fguard_id)) 
 
 
 class PaidGuards(models.Model):

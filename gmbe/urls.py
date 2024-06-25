@@ -27,5 +27,8 @@ urlpatterns = [
     path('exchange_report_by_type/<str:ex_type>', admin_urls.get_exchange_report_by_type, name='exchange_report_by_type'),
     path('create_position', admin_urls.create_position, name='create_position'),
     path('update_fguard', admin_urls.update_fguard, name='update_fguard'),
+    path('get_fguard_shifts/<int:fguard_id>', admin_urls.get_fguard_shifts, name='get_fguard_by_id'),
+    path('get_exchanges_for_fguard/<int:fguard_id>', admin_urls.get_exchanges_for_fguard, name='get_exchanges_for_fguard'),
+    path('get_did_exchanges_for_fguard/<int:fguard_id>', admin_urls.get_did_exchanges_for_fguard, name='get_did_exchanges_for_fguard'),
 
 ]

@@ -195,7 +195,7 @@ def api_get_last_id():
             safe=False
             )
 
-def api_get_instance_by_entity_id(model, instance, entity_id):
+def api_get_instance_by_entity_id(model, model_serializer, instance, entity_id):
     loggr.info('///MOVE TO serializers_views.api_get_instance_by_entity_id()')
     try:
         fetched_instance = dal.get_instance_by_entity_id(model, instance, entity_id)
@@ -208,7 +208,13 @@ def api_get_instance_by_entity_id(model, instance, entity_id):
             status=500, 
             safe=False
             )
-        return fetched_instance
+        serialized_instance = serialize_data(
+            model_serializer=model_serializer, 
+            instance_model=instance, 
+            objects=fetched_instance, 
+            many=True
+            ).data
+        return serialized_instance
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_instance_by_entity_id():{e}')
         return JsonResponse(
@@ -263,3 +269,16 @@ def api_update_instance(validated_data, id, instance_model, model_serializer):
                 status=500, 
                 safe=False
                 )
+    
+def api_get_fields_by_id(model, model_serializer, field_name, idd):
+    loggr.info('///MOVE TO serializers_views.api_get_field_by_id()')
+    try:    
+        fields = dal.get_field_name_by_id(model, field_name, idd)
+        if fields == None:
+            return None
+        details = model_serializer(fields, many=True).data
+        return details
+
+    except Exception as e:
+        loggr.error((f'ERROR serializers_views.api_get_field_by_id:{e}'))
+        return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
