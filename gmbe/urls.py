@@ -8,6 +8,7 @@ urlpatterns = [
     path('families_list', admin_urls.families_list, name='families_list'),
     path('users_list', admin_urls.users_list, name='users_list'),
     path('fguards_list', admin_urls.fguards_list, name='fguards_list'),
+    path('pguards_list', admin_urls.pguards_list, name='pguards_list'),
     path('positions_list', admin_urls.positions_list, name='positions_list'),
     path('paid_guards_list', admin_urls.paid_guards_list, name='paid_guards_list'),
     path('shifts_list', admin_urls.shifts_list, name='shifts_list'),
@@ -27,8 +28,10 @@ urlpatterns = [
     path('exchange_report_by_type/<str:ex_type>', admin_urls.get_exchange_report_by_type, name='exchange_report_by_type'),
     path('create_position', admin_urls.create_position, name='create_position'),
     path('update_fguard', admin_urls.update_fguard, name='update_fguard'),
+    path('update_pguard', admin_urls.update_pguard, name='update_pguard'),
     path('get_fguard_shifts/<int:fguard_id>', admin_urls.get_fguard_shifts, name='get_fguard_by_id'),
     path('get_exchanges_for_fguard/<int:fguard_id>', admin_urls.get_exchanges_for_fguard, name='get_exchanges_for_fguard'),
     path('get_did_exchanges_for_fguard/<int:fguard_id>', admin_urls.get_did_exchanges_for_fguard, name='get_did_exchanges_for_fguard'),
+    path('get_paid_exchanges_for_fguard/<int:fguard_id>', admin_urls.get_paid_exchanges_for_fguard, name='get_paid_exchanges_for_fguard'),
 
 ]

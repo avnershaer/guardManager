@@ -2,8 +2,8 @@ from ..dal.dviews import Dal
 from ..utils.operations_funcs import serialize_data
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
-from ..api.serializers import GuardinglistSerializer
-from ..dal.models import GuardingList
+from ..api.serializers import GuardinglistSerializer, ExchangesSerializer
+from ..dal.models import GuardingList, PaidGuards, Position, Shift, Fguard
 import json
 
 
@@ -15,25 +15,60 @@ dal = Dal()
 def api_create_new(model, model_serializer, data):
     loggr.info('///MOVE TO serializers_views.api_create_new()')
     try:
+        # Check if data contains the appropriate object instances
+        if 'position_id' in data:
+            if isinstance(data['position_id'], dict):
+                data['position_id'] = Position.objects.get(position_id=data['position_id']['position_id'])
+            elif not isinstance(data['position_id'], Position):
+                raise ValueError(f"Invalid type for 'position_id': {type(data['position_id'])}")
+
+        if 'shift_id' in data:
+            if isinstance(data['shift_id'], dict):
+                data['shift_id'] = Shift.objects.get(shift_id=data['shift_id']['shift_id'])
+            elif not isinstance(data['shift_id'], Shift):
+                raise ValueError(f"Invalid type for 'shift_id': {type(data['shift_id'])}")
+
+        if 'origin_guard_id' in data:
+            if isinstance(data['origin_guard_id'], dict):
+                data['origin_guard_id'] = Fguard.objects.get(fguard_id=data['origin_guard_id']['fguard_id'])
+            elif not isinstance(data['origin_guard_id'], Fguard):
+                raise ValueError(f"Invalid type for 'origin_guard_id': {type(data['origin_guard_id'])}")
+
+        if 'substitute_fguard_id' in data:
+            if data['substitute_fguard_id'] is not None:
+                if isinstance(data['substitute_fguard_id'], dict):
+                    data['substitute_fguard_id'] = Fguard.objects.get(fguard_id=data['substitute_fguard_id']['fguard_id'])
+                elif not isinstance(data['substitute_fguard_id'], Fguard):
+                    raise ValueError(f"Invalid type for 'substitute_fguard_id': {type(data['substitute_fguard_id'])}")
+
+        if 'substitute_Pguard_id' in data and data['substitute_Pguard_id'] is not None:
+            if isinstance(data['substitute_Pguard_id'], dict):
+                data['substitute_Pguard_id'] = PaidGuards.objects.get(pguard_id=data['substitute_Pguard_id']['pguard_id'])
+            elif not isinstance(data['substitute_Pguard_id'], PaidGuards):
+                raise ValueError(f"Invalid type for 'substitute_Pguard_id': {type(data['substitute_Pguard_id'])}")
+
         new_instance = dal.create_new(model, **data)
         if isinstance(new_instance, JsonResponse):
-            return new_instance       
+            return new_instance
+        
         serialized_details = serialize_data(
             model, 
             model_serializer, 
             new_instance,
             False
-            )
+        )
+        
         if isinstance(serialized_details, JsonResponse):
             return serialized_details
+        
         return serialized_details.data
     except Exception as e:
+        loggr.error(f"ERROR AT serializers_views.api_create_new(): {str(e)}")
         return JsonResponse(
-            {'status:':'ERROR AT serializers_views.api_create_new()','details:':str(e)}, 
+            {'status': 'ERROR', 'details': str(e)}, 
             status=500, 
             safe=False
-            )
-
+        )
 
 def api_get_list(instance_model, model_serializer):
     loggr.info('///MOVE TO serializers_views.api_get_list()')
@@ -212,7 +247,7 @@ def api_get_instance_by_entity_id(model, model_serializer, instance, entity_id):
             model_serializer=model_serializer, 
             instance_model=instance, 
             objects=fetched_instance, 
-            many=True
+            many=False
             ).data
         return serialized_instance
     except Exception as e:
@@ -277,6 +312,19 @@ def api_get_fields_by_id(model, model_serializer, field_name, idd):
         if fields == None:
             return None
         details = model_serializer(fields, many=True).data
+        return details
+
+    except Exception as e:
+        loggr.error((f'ERROR serializers_views.api_get_field_by_id:{e}'))
+        return JsonResponse({'status':'error', 'details':e}, status=500, safe=False) 
+
+def api_paid_exchanges_by_fguard(fguard_id):
+    loggr.info('///MOVE TO serializers_views.api_get_field_by_id()')
+    try:    
+        fields = dal.get_paid_exchanges_by_fguard(fguard_id)
+        if fields == None:
+            return None
+        details = ExchangesSerializer(fields, many=True).data
         return details
 
     except Exception as e:

@@ -153,8 +153,10 @@ class Dal(View):
         try:
             kwargs = {instance: parm}
             query_instance = model.objects.filter(**kwargs)
-            loggr.info(f'instance_by_parm:{query_instance}')
-            return query_instance
+            if query_instance:
+                loggr.info(f'instance_by_parm:{query_instance}')
+                return query_instance
+            return None
         except Exception as e:
             loggr.error(f'ERROR at dviews.get_shifts_by_date_pos(): FAILD TO GET SHIFTS:{e}')
             return JsonResponse({'status': 'error', 'details':'dviews.get_shifts_by_date_pos()-faild to get shifts'}) 
@@ -185,12 +187,32 @@ class Dal(View):
     def exchange_guard(self, shift_id, guard_id, substitute_guard_id, ex_type):
         loggr.info('///MOVE TO dviews.exchange_guard()')
         try:
-            shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
-            if ex_type == 'paid': #check if fguard or paid guard and get instance
-                substitute_guard = PaidGuards.objects.get(pguard_id=substitute_guard_id.pguard_id)
+            # check shift_id dict or an object
+            if isinstance(shift_id, dict):
+                shift_instance = Shift.objects.get(shift_id=shift_id['shift_id'])
+            else:
+                shift_instance = Shift.objects.get(shift_id=shift_id.shift_id)
+
+            # check substitute_guard_id based on ex_type
+            if ex_type == 'paid':
+                if isinstance(substitute_guard_id, dict):
+                    substitute_guard = PaidGuards.objects.get(pguard_id=substitute_guard_id['pguard_id'])
+                else:
+                    substitute_guard = PaidGuards.objects.get(pguard_id=substitute_guard_id.pguard_id)
             elif ex_type == 'ordinary' or ex_type == 'cross':
-                substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
-            current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id.fguard_id).first()
+                if isinstance(substitute_guard_id, dict):
+                    substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id['fguard_id'])
+                else:
+                    substitute_guard = Fguard.objects.get(fguard_id=substitute_guard_id.fguard_id)
+            else:
+                raise ValueError(f"Invalid ex_type: {ex_type}")
+
+            # check guard_id dict or an object
+            if isinstance(guard_id, dict):
+                current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id['fguard_id']).first()
+            else:
+                current_guard = shift_instance.fguard_id.filter(fguard_id=guard_id.fguard_id).first()
+
             if current_guard:
                 shift_instance.fguard_id.remove(current_guard)
                 loggr.info(f"Removed current guard: {current_guard}")
@@ -200,11 +222,10 @@ class Dal(View):
                     shift_instance.pguard_id.add(substitute_guard)
                 shift_instance.save()
                 loggr.info(f'OK SAVED NEW REPLACED GUARD')
-                if shift_instance:
-                    loggr.info(f'OK SAVED NEW REPLACED GUARD')
-                    return shift_instance
+                return shift_instance
+            else:
+                loggr.info(f"No current guard found with fguard_id: {guard_id['fguard_id'] if isinstance(guard_id, dict) else guard_id.fguard_id}")
                 return None
-            return None
         except Exception as e:
             loggr.error(f"ERROR dviews.exchange_guard(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
@@ -262,3 +283,18 @@ class Dal(View):
         except Exception as e:
             loggr.error(f"ERROR dviews.update()(): {str(e)}")
             return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
+        
+    def get_paid_exchanges_by_fguard(self, fguard_id):
+        loggr.info('///MOVE TO dviews.get_paid_exchanges_by_fguard()')
+        try:
+            paid_exchages = Exchanges.objects.filter(
+                origin_guard_id=fguard_id, 
+                substitute_Pguard_id__isnull=False
+                )
+            if paid_exchages:
+                return paid_exchages
+            return None
+        except Exception as e:
+            loggr.error(f"ERROR dviews.get_paid_exchanges_by_fguard()(): {str(e)}")
+            return JsonResponse({'status': 'ERROR', 'Details': str(e)}, status=500)
+

@@ -1,13 +1,13 @@
 from ..api.serislizers_views import api_get_list
 from ..dal.models import *
 from ..api.serializers import *
-from ..api.serislizers_views import api_get_instances_by_parm, api_create_new, api_update_instance, api_get_fields_by_id
+from ..api.serislizers_views import api_get_instances_by_parm, api_create_new, api_update_instance, api_get_fields_by_id, api_paid_exchanges_by_fguard
 from django.http import JsonResponse
 from loggers.loggers import logger, err_logger
 from ..utils.create_list_funcs import create_guarding_list, save_shift_details
 from ..dal.dviews import Dal
 from ..utils.operations_funcs import get_last_id, handle_exchange_guard
-from ..utils.requests_data import fguard_data
+from ..utils.requests_data import fguard_data, pguard_data
 
 dal = Dal()
 loggr = logger()
@@ -39,11 +39,27 @@ class AdminFacade():
                 instance_model=Fguard, 
                 model_serializer = FguardSerializer
                 )
-            loggr.info(f'families_list:{fguards_list}')
+            loggr.info(f'fguards list:{fguards_list}')
             return fguards_list
         except Exception as e:
             return JsonResponse(
                 {'status':'ERROR at admin_facade.get_all_fguards','details':str(e)}, 
+                status=500, 
+                safe=False
+                )
+    
+    def get_all_pguards(self, request):
+        loggr.info('///MOVE TO admin_facade.get_all_pguards()')
+        try:
+            pguards_list = api_get_list(
+                instance_model=PaidGuards, 
+                model_serializer = PaidGuardsSerializer
+                )
+            loggr.info(f'pguards_list:{pguards_list}')
+            return pguards_list
+        except Exception as e:
+            return JsonResponse(
+                {'status':'ERROR at admin_facade.get_all_pguards','details':str(e)}, 
                 status=500, 
                 safe=False
                 )
@@ -288,9 +304,29 @@ class AdminFacade():
               status=500, 
               safe=False
               )
+    
+    def update_pguard(self, request):
+        loggr.info(f'///MOVE TO admin_facade.update_pguard() request:{request.FILES}')
+        try:
+            data = pguard_data(request)
+            id = data['pguard_id']
+            updated_pguard = api_update_instance(
+                validated_data=data, 
+                id=id, 
+                instance_model=PaidGuards, 
+                model_serializer=PaidGuardsSerializer,
+                )
+            return updated_pguard
+        except Exception as e:
+          loggr.error(f'ERROR AT admin_facade.update_pguard():{e}') 
+          return JsonResponse(
+              {'status':'ERROR AT admin_facade.update_pguard()','details':str(e)}, 
+              status=500, 
+              safe=False
+              )
         
     def get_shifts_for_fguard(self, request, fguard_id):
-        loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
+        loggr.info('///MOVE TO admin_facade.get_shifts_for_fguard()')
         try:
             fguard = api_get_fields_by_id(
                 Shift,
@@ -300,11 +336,11 @@ class AdminFacade():
             )
             return fguard
         except Exception as e:
-            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            loggr.error(f'ERROR AT admin_facade.get_shifts_for_fguard():{e}')
             raise e
     
     def get_exchanges_for_fguard(self, request, fguard_id):
-        loggr.info('///MOVE TO admin_facade.get_fguard_by_fguard_id()')
+        loggr.info('///MOVE TO admin_facade.get_exchanges_for_fguard()')
         try:
             fguard = api_get_instances_by_parm(
                 Exchanges,
@@ -314,7 +350,7 @@ class AdminFacade():
             )
             return fguard
         except Exception as e:
-            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            loggr.error(f'ERROR AT admin_facade.get_exchanges_for_fguard():{e}')
             raise e
     
     def get_did_exchanges_for_fguard(self, request, fguard_id):
@@ -328,5 +364,14 @@ class AdminFacade():
             )
             return fguard
         except Exception as e:
-            loggr.error(f'ERROR AT admin_facade.get_fguard_by_fguard_id():{e}')
+            loggr.error(f'ERROR AT admin_facade.get_did_exchanges_for_fguard():{e}')
+            raise e
+    
+    def get_paid_exchanges_for_fguard(self, request, fguard_id):
+        loggr.info('///MOVE TO admin_facade.get_paid_exchanges_for_fguard()')
+        try:
+            fguard = api_paid_exchanges_by_fguard(fguard_id)
+            return fguard
+        except Exception as e:
+            loggr.error(f'ERROR AT admin_facade.get_paid_exchanges_for_fguard():{e}')
             raise e

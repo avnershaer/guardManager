@@ -27,11 +27,11 @@ def families_list(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at url_views.admin_urls.families_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
-
+    
 @csrf_exempt  
 @api_view(['GET'])
 def users_list(request):
@@ -47,9 +47,10 @@ def users_list(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
-            safe=False)
+            safe=False
+            )
 
 @csrf_exempt  
 @api_view(['GET'])
@@ -66,7 +67,27 @@ def fguards_list(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at url_views.admin_urls.users_list()','details':str(e)}, 
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+
+@csrf_exempt  
+@api_view(['GET'])
+def pguards_list(request):
+    loggr.info(f'{request} request recived - admin_urls.pguards_list()')
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET requests only!'}, status=405)  
+    try:
+        fguards_list = admin_facade.get_all_pguards(request)
+        return JsonResponse(
+            {'details':fguards_list}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse(
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -86,7 +107,7 @@ def positions_list(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at url_views.admin_urls.positions_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -107,7 +128,7 @@ def paid_guards_list(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at admin_urls.paid_guards_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -127,7 +148,7 @@ def get_all_exchanges(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at admin_urls.get_all_exchanges()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -143,7 +164,7 @@ def shifts_list(request):
         return JsonResponse({'status':'success', 'Details':shifts_list})
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at admin_urls.shifts_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -165,7 +186,7 @@ def create_guard_list(request):
     
     except Exception as e:
         return JsonResponse(
-            {'status': 'ERROR at url_views.admin_urls.create_guard_list()','details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -181,7 +202,11 @@ def save_guarding_list(request):
         loggr.info(f'O.K GLIST')
         return glist
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['PUT'])
@@ -206,7 +231,7 @@ def exchange_guard(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status':'ERROR', 'Details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -234,7 +259,7 @@ def paid_exchange_guard(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status':'ERROR', 'Details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -256,7 +281,7 @@ def cross_exchange_guards(request):
             )
     except Exception as e:
         return JsonResponse(
-            {'status':'ERROR', 'Details':str(e)}, 
+            {'error':str(e)}, 
             status=500, 
             safe=False
             )
@@ -282,8 +307,12 @@ def get_exchange_report_by_type(request, ex_type):
             safe=False
             )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)}, status=500, safe=False)
-
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+    
 @csrf_exempt
 @api_view(['POST'])
 def create_position(request):
@@ -301,8 +330,12 @@ def create_position(request):
             safe=False
             )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
-
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+    
 @csrf_exempt
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -328,7 +361,42 @@ def update_fguard(request):
             safe=False
             )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+
+@csrf_exempt
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def update_pguard(request):
+    loggr.info(f'{request} request recived - admin_urls.update_fguard()')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST requests only!'}, status=405)  
+    try:
+        pguard_pic = request.FILES.get('pguard_pic')
+        loggr.info(f'Uploaded file: {pguard_pic}')
+        updated_pguard = admin_facade.update_pguard(request)
+        if isinstance(updated_pguard, JsonResponse):
+                return updated_pguard
+        elif updated_pguard == None:
+            return JsonResponse(
+                {'error': 'ERROR UPDATING GUARD - GOT NONE'}, 
+                status=500
+                )
+        loggr.info(f'O.K UPDATED GUARD')
+        return JsonResponse(
+            {'status':'success', 'details':updated_pguard}, 
+            status=200, 
+            safe=False
+            )
+    except Exception as e:
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
     
 @csrf_exempt
 @api_view(['GET'])
@@ -343,11 +411,15 @@ def get_fguard_shifts(request, fguard_id):
             safe=False
             )
         return JsonResponse(
-                {'error': 'ERROR GETTING FGUARD BY ID'}, 
+                {'error': 'לא נמצאו משמרות לשומר'}, 
                 status=500
                 )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
 
 @csrf_exempt
 @api_view(['GET'])
@@ -362,16 +434,20 @@ def get_exchanges_for_fguard(request, fguard_id):
             safe=False
             )
         return JsonResponse(
-                {'error': 'ERROR GETTING FGUARD EXCHAGES'}, 
-                status=500
+                {'error': 'לא נמצאו החלפות לשומר'}, 
+                status=404
                 )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
-
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+    
 @csrf_exempt
 @api_view(['GET'])
 def get_did_exchanges_for_fguard(request, fguard_id):
-    loggr.info(f'{request} request recived - admin_urls.get_fguard_by_id()')
+    loggr.info(f'{request} request recived - admin_urls.get_did_exchanges_for_fguard()')
     try:
         fguard = admin_facade.get_did_exchanges_for_fguard(request, fguard_id)
         if fguard:
@@ -381,9 +457,36 @@ def get_did_exchanges_for_fguard(request, fguard_id):
             safe=False
             )
         return JsonResponse(
-                {'error': 'ERROR GETTING FGUARD EXCHAGES'}, 
+                {'error': 'לא נמצאו החלפות לשומר'}, 
                 status=500
                 )
     except Exception as e:
-        return JsonResponse({'status':'ERROR', 'Details':str(e)})
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
+
+@csrf_exempt
+@api_view(['GET'])
+def get_paid_exchanges_for_fguard(request, fguard_id):
+    loggr.info(f'{request} request recived - admin_urls.get_paid_exchanges_for_fguard()')
+    try:
+        fguard = admin_facade.get_paid_exchanges_for_fguard(request, fguard_id)
+        if fguard:
+            return JsonResponse(
+            {'status':'success', 'details':fguard}, 
+            status=200, 
+            safe=False
+            )
+        return JsonResponse(
+                {'error': 'לא נמצאו החלפות בשכר לשומר'}, 
+                status=404
+                )
+    except Exception as e:
+        return JsonResponse(
+            {'error':str(e)}, 
+            status=500, 
+            safe=False
+            )
     

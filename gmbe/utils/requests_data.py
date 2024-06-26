@@ -2,16 +2,17 @@ from loggers.loggers import logger, err_logger
 from django.http import JsonResponse
 from ..dal.models import Position, Families, Shift, Fguard, PaidGuards
 from ..dal.dviews import Dal
+from ..api.serializers import PositionSerializer, ShiftSerializer, FguardSerializer, PaidGuardsSerializer
 
 dal =Dal()
 loggr = logger()
 errlogger = err_logger()
 
-def fetch_required_instances(model, instance, entity_id):
+def fetch_required_instances(model, instance, entity_id, model_serializer ):
     loggr.info('///MOVE TO requests_data.fetch_required_instances()')
     from ..api.serislizers_views import api_get_instance_by_entity_id
     try:
-        instance = api_get_instance_by_entity_id(model, instance, entity_id)
+        instance = api_get_instance_by_entity_id(model, model_serializer, instance, entity_id)
         if instance == None:
             return None
         return instance
@@ -24,6 +25,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
     try:
         position_instance = fetch_required_instances(
                 model = Position, 
+                model_serializer = PositionSerializer,
                 instance = 'position_id', 
                 entity_id = position_id
                 )
@@ -31,7 +33,8 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
             return None
         
         shift_instance = fetch_required_instances(
-                model=Shift, 
+                model=Shift,
+                model_serializer = ShiftSerializer, 
                 instance = 'shift_id', 
                 entity_id = shift_id
                 )
@@ -40,6 +43,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
         
         origin_guard_instance = fetch_required_instances(
                 model=Fguard, 
+                model_serializer = FguardSerializer,
                 instance = 'fguard_id', 
                 entity_id = guard_id
                 )
@@ -55,6 +59,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
                 return None
             substitute_guard_instance = fetch_required_instances(
                     model=Fguard, 
+                    model_serializer = FguardSerializer,
                     instance = 'fguard_id', 
                     entity_id = substitute_guard_id
                     )
@@ -63,6 +68,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
         elif ex_type == 'cross':
             substitute_guard_instance = fetch_required_instances(
                     model=Fguard, 
+                    model_serializer = FguardSerializer,
                     instance = 'fguard_id', 
                     entity_id = substitute_guard
                     )
@@ -77,6 +83,7 @@ def get_instances(position_id, guard_id, substitute_guard, shift_id, ex_type):
                 return None
             substitute_pguard_instance = fetch_required_instances(
                     model=PaidGuards, 
+                    model_serializer = PaidGuardsSerializer,
                     instance = 'pguard_id', 
                     entity_id = substitute_guard_id
                     )
@@ -153,4 +160,28 @@ def fguard_data(request):
         return data_for_update
     except Exception as e:
         loggr.error(f'error at requests_data.fguard_data(): {str(e)}')  
+        return JsonResponse({'status': 'error', 'details': str(e)}, status=500)
+
+def pguard_data(request):
+    loggr.info('///MOVE TO requests_data.Pguard_data()')
+    try:
+        pguard_name = request.data.get('pguard_name')
+        pguard_phone = request.data.get('pguard_phone')
+        pguard_email = request.data.get('pguard_email')
+        pguard_id = request.data.get('pguard_id')
+        armed = request.data.get('armed')
+        cap_armed = armed.capitalize()
+        pguard_pic = request.FILES.get('pguard_pic')
+
+        data_for_update = {
+            'pguard_id': pguard_id,
+            'pguard_name': pguard_name,
+            'pguard_phone': pguard_phone,
+            'pguard_email': pguard_email,
+            'armed': cap_armed
+        }
+        data_for_update['pguard_pic'] = pguard_pic
+        return data_for_update
+    except Exception as e:
+        loggr.error(f'error at requests_data.pguard_data(): {str(e)}')  
         return JsonResponse({'status': 'error', 'details': str(e)}, status=500)
