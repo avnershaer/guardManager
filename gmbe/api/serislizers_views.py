@@ -221,7 +221,7 @@ def api_get_last_id():
             loggr.error(f'ERROR AT serializers_views.api_get_last_id()') 
             return last_id
         loggr.info(f'*****last_id:{last_id}')
-        return last_id
+        return last_id+1
     except Exception as e:
         loggr.error(f'ERROR AT serializers_views.api_get_last_id():{e}')
         return JsonResponse(

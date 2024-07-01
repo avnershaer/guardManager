@@ -94,31 +94,32 @@ class Dal(View):
                 queryset = model.objects.filter(Q(user__is_active=True) | Q(user__isnull=True))
             else:
                 queryset = model.objects.all()
-            loggr.info(f'*******queryset: {queryset}')
-            second_queryset = queryset[starting_id-1:]
-            loggr.info(f'*******second_queryset: {second_queryset}')
-            third_queryset = second_queryset[:num_objects]
-            loggr.info(f'*******third_queryset: {third_queryset}')
-            id_list= list(third_queryset)
-            loggr.info(f'*******id_list: {id_list}')
-            a = len(id_list)
-            loggr.info(f'a = {a} ---num_objects = {int(num_objects)} ')
-            while len(id_list) < num_objects:
-                b = num_objects - a
-                loggr.info(f'b = {b} ') 
-                queryset = queryset[:b]
-                loggr.info(f'*******last queryset: {queryset}')
-                for i in queryset:
-                    id_list.append(i)
-                
+            #loggr.info(f'*******queryset: {queryset}')
+            #second_queryset = queryset[starting_id-1:]
+            #loggr.info(f'*******second_queryset: {second_queryset}')
+            #third_queryset = second_queryset[:num_objects]
+            #loggr.info(f'*******third_queryset: {third_queryset}')
+            #id_list= list(third_queryset)
+            #loggr.info(f'*******id_list: {id_list}')
+            #a = len(id_list)
+            #loggr.info(f'a = {a} ---num_objects = {int(num_objects)} ')
+            #while len(id_list) < num_objects:
+            #    b = num_objects - a
+            #    loggr.info(f'b = {b} ') 
+            #    queryset = queryset[:b]
+            #    loggr.info(f'*******last queryset: {queryset}')
+            #    for i in queryset:
+            #        id_list.append(i)
+            #    
             #table_list = list(queryset)
-            loggr.info(f'*******LAST id_list: {id_list}')
-            if id_list:
-                loggr.info(f'OK got object/s from db HTTP/1.1 200 - dalviews.Dal.set_table_objects_list()--tabl_list:{id_list}')
-                return id_list
-            else:
-                errlogger.error('DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400  at  dviews.Dal.set_table_objects_list()')
-                return JsonResponse({'status': 'DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400'}, status=400, safe=False) 
+            #oggr.info(f'*******LAST id_list: {id_list}')
+            #f id_list:
+            #   loggr.info(f'OK got object/s from db HTTP/1.1 200 - dalviews.Dal.set_table_objects_list()--tabl_list:{id_list}')
+            #   return id_list
+            if queryset:
+                return queryset
+            errlogger.error('DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400  at  dviews.Dal.set_table_objects_list()')
+            return JsonResponse({'status': 'DATABASE ERROR..OBJ NOT FOUND HTTP/1.1 400'}, status=400, safe=False) 
 
         except Exception as e:
             errlogger.error(f'ERROR HTTP/1.1 500 at dviews.Dal.set_table_objects_list:{e}')

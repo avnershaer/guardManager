@@ -6,7 +6,7 @@ from ..dal.models import GuardingList, Families, SetGuardingList, Position, Shif
 from ..api.serializers import FguardSerializer, SetGuardingListSerializer, FamiliesSerializer, PositionSerializer
 from datetime import time, timedelta, datetime
 from ..api.serislizers_views import api_get_last_id
-import json
+from itertools import cycle
 
 loggr = logger()
 errlogger = err_logger()
@@ -78,11 +78,11 @@ def create_guarding_list(request):
                 glist_data['num_of_gards'], 
                 glist_data['daily_guard_hours'], 
                 glist_data['gaurd_start_time'],
-                glist_data['position_id']
+                int(glist_data['position_id'])
             )
 
             gurading_list = {
-                'last_guard_id':shifts_dict['last_id'],
+                'last_guard_id':int(shifts_dict['last_id']),
                 'position_id': glist_data['serialized_position'],
                 'list_date': glist_date.strftime('%Y-%m-%d'),  # convert datetime object back to string
                 'list_day':glist_day,
@@ -154,67 +154,96 @@ def id_list( num_of_shifts, num_of_gards, starting_user_id,model):
 
 # create a shift dict for guarding list
 def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_guard_hours, gaurd_start_time, position_id):
-    loggr.info('got to create_list_funcs.create_shifts_dict()')
-    # total number of shifts
-    num_of_shifts = int(daily_guard_hours / int(hours_per_shift))
-    loggr.info(f'num of shifts:{num_of_shifts}')
-    # hour for shift
-    gaurd_start_datetime = datetime.strptime(gaurd_start_time, "%H:%M")
-    hour = datetime(1900, 1, 1, gaurd_start_datetime.hour, gaurd_start_datetime.minute)  
-    loggr.info(f'HOUR:{hour}')
-    #datetime(1900, 1, 1, 0, 0)  # for 00:00
-    num_objects=int(num_of_shifts) * int(num_of_gards)
-    loggr.info(f'num_objects:{num_objects}')
-    model=Families
-    family_list = dal.set_table_object_list(model, num_objects, starting_id=int(starting_user_id) )
-    if isinstance(family_list, JsonResponse):
-            errlogger.error(f'error got no id list:{family_list}')
+    loggr.info('Got to create_list_funcs.create_shifts_dict()')
+    try:
+        # Convert inputs to integers if they are not already
+        hours_per_shift = int(hours_per_shift)
+        starting_user_id = int(starting_user_id)
+        num_of_gards = int(num_of_gards)
+        daily_guard_hours = int(daily_guard_hours)
+        position_id = int(position_id)
+    
+        # Calculate the total number of shifts
+        num_of_shifts = daily_guard_hours // hours_per_shift
+        loggr.info(f'Number of shifts: {num_of_shifts}')
+    
+        # Initialize the starting hour for the shifts
+        guard_start_datetime = datetime.strptime(gaurd_start_time, "%H:%M")
+        hour = datetime(1900, 1, 1, guard_start_datetime.hour, guard_start_datetime.minute)
+        loggr.info(f'Start hour: {hour}')
+    
+        # Calculate the total number of objects
+        num_objects = num_of_shifts * num_of_gards
+        loggr.info(f'Number of objects: {num_objects}')
+    
+        # Create the family list starting from the given user ID
+        model = Families
+        family_list = dal.set_table_object_list(model, num_objects, starting_id=starting_user_id)
+        if isinstance(family_list, JsonResponse):
+            errlogger.error(f'Error, got no ID list: {family_list}')
             return family_list
-    loggr.info(f'got guards_list at create_list_funcs.create_shifts_dict()--{family_list}  ')
-    shifts = {}
+        loggr.info(f'Got family list at create_list_funcs.create_shifts_dict(): {family_list}')
+    
+        # Try to find the starting user ID in the family list
+        start_index = None
+        for i, family in enumerate(family_list):
+            if family.family_id >= starting_user_id:
+                start_index = i
+                break
 
-    # Loop through each shift hour
-    for shift in range(num_of_shifts):
-        shift_hour = hour# hour for shift
-        position = Position.objects.get(position_id=position_id)
-        serialized_position = PositionSerializer(position).data
-
-        shift_dict = {
-            'shift_num': shift + 1, 
-            'shift_hour': shift_hour.strftime("%H:%M"), 
-            'guards': {},              # hour format^
-            'position_id':serialized_position
-            }
-                                                                        
-        hour = hour + timedelta(hours=int(hours_per_shift))  # hour for shift
+        if start_index is None:
+            errlogger.error(f'Starting user ID {starting_user_id} not found in family list')
+            return JsonResponse({'status:': 'ERROR', 'details:': f'Starting user ID {starting_user_id} not found'}, status=500, safe=False)
         
-   
-        # Generate IDs for guards for this shift
-        for guard_num in range(int(num_of_gards)):
-            if family_list:
-                #get family instance
-                family_instance = family_list.pop(0)  # remove and get the first id from id_list
-                loggr.info(f'<><><>guard id{family_instance}')
+        # Reorder the family list to start from the found starting_user_id
+        family_list = family_list[start_index:] + family_list[:start_index]
+
+        # Create a circular iterator for the family list
+        family_iter = cycle(family_list)
+        shifts = {}
+    
+        # Loop through each shift
+        for shift in range(num_of_shifts):
+            shift_hour = hour
+            position = Position.objects.get(position_id=position_id)
+            serialized_position = PositionSerializer(position).data
+    
+            shift_dict = {
+                'shift_num': shift + 1,
+                'shift_hour': shift_hour.strftime("%H:%M"),
+                'guards': {},
+                'position_id': serialized_position
+            }
+    
+            hour += timedelta(hours=hours_per_shift)
+    
+            # Generate IDs for guards for this shift
+            for guard_num in range(num_of_gards):
+                # Get the next family instance from the circular iterator
+                family_instance = next(family_iter)
+                loggr.info(f'Guard ID: {family_instance}')
                 serialized_family = FamiliesSerializer(family_instance).data
-                # get fgaurd instance
+    
                 fguards = dal.get_field_name_by_id(Fguard, 'family_id', family_instance.family_id)
                 if fguards:
                     for fguard in fguards:
                         serialized_fguard = FguardSerializer(fguard).data
-                        guard_key = len(shift_dict['guards']) + 1  # key for each guardstarting from 1
+                        guard_key = len(shift_dict['guards']) + 1
                         shift_dict['guards'][guard_key] = {
-                        'family': serialized_family,
-                        'guard_details': serialized_fguard
+                            'family': serialized_family,
+                            'guard_details': serialized_fguard
                         }
-                loggr.info(f'SHIFT DICT HOURS : {shift_dict} ')  
-            else:
-                loggr.error("No more guards available!")
-                # ***TO ADD** JsonResponse({'error': 'No more guards available!'}, status=500)
-        shifts[shift + 1] = shift_dict 
-    loggr.info(f'shift_dict guards been set to shift dict.')
-    last_id = get_shift_last_id(shifts)
-    return {'shifts':shifts, 'last_id':last_id}
-       
+                loggr.info(f'Shift dict hours: {shift_dict}')
+    
+            shifts[shift + 1] = shift_dict
+        loggr.info('Shift dict guards have been set to shift dict.')
+    
+        last_id = get_shift_last_id(shifts)
+        return {'shifts': shifts, 'last_id': last_id}
+    except Exception as e:
+        loggr.error(f'ERROR---create_list_funcs.create_guarding_list(): {e}')
+        return JsonResponse({'status:': 'ERROR----create_list_funcs.create_guarding_list()', 'details:': str(e)}, status=500, safe=False)
+
 
 def save_shift_details(request, shifts):
     loggr.info('<>OK move to create_list_funcs.save_shift_details()')
