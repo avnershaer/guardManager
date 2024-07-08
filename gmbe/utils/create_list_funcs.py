@@ -183,7 +183,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
             errlogger.error(f'Error, got no ID list: {family_list}')
             return family_list
         loggr.info(f'Got family list at create_list_funcs.create_shifts_dict(): {family_list}')
-    
+
         # Try to find the starting user ID in the family list
         start_index = None
         for i, family in enumerate(family_list):
@@ -192,8 +192,7 @@ def create_shifts_dict(hours_per_shift, starting_user_id, num_of_gards, daily_gu
                 break
 
         if start_index is None:
-            errlogger.error(f'Starting user ID {starting_user_id} not found in family list')
-            return JsonResponse({'status:': 'ERROR', 'details:': f'Starting user ID {starting_user_id} not found'}, status=500, safe=False)
+                start_index = 0
         
         # Reorder the family list to start from the found starting_user_id
         family_list = family_list[start_index:] + family_list[:start_index]
